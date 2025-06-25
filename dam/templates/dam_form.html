@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;  charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAM</title>
+    <!-- <link rel="stylesheet" href="/static/dam.css"> -->
+    <script async defer src="{{ js_src_url }}" type="module"></script>
+</head>
+<body>
+    <h1>Gauging your humanity...</h1>
+    <form id="altcha-submission" action="{% url 'dam:dam_form' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        {{ form }}
+    </form>
+    <script type="text/javascript">
+        document.querySelector("altcha-widget").addEventListener("statechange", (ev) => {
+            if (ev.detail.state === "verified") {
+                setTimeout(() => {
+                    document.forms["altcha-submission"].submit();
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

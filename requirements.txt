@@ -1,0 +1,1 @@
+django-altcha~=0.2
