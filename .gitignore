@@ -1,0 +1,10 @@
+.pyc
+*.swp
+*.swo
+*.egg
+*.egg-info
+*.sqlite3
+.cache/
+**/.pytest_cache/
+.venv/
+.python-version
