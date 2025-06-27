@@ -1,3 +1,5 @@
+import ipaddress
+
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -13,21 +15,67 @@ class AltchaMiddleware(MiddlewareMixin):
         self.altcha_session_key = getattr(settings,
                                           'ALTCHA_SESSION_KEY',
                                           'altcha_verified')
-        self.exclude_paths = getattr(settings,
-                                     'ALTCHA_EXCLUDE_PATHS',
-                                     set())
-        self.exclude_ips = getattr(settings,
-                                   'ALTCHA_EXCLUDE_IPS',
-                                   set())
+        self.excluded_paths = getattr(settings,
+                                      'ALTCHA_EXCLUDE_PATHS',
+                                      set())
+        ip_exclusions = getattr(settings,
+                                'ALTCHA_EXCLUDE_IPS',
+                                [])
+        self.excluded_ips = make_ip_list(ip_exclusions)
+        self.excluded_ips.sort()
+
+    def exclude_ip(self, request):
+        """Determine if client IP can skip Altcha verification.
+
+        X-Forwarded-For header may include chain of IPs, if so, use first
+        address.
+        """
+        if not self.excluded_ips:
+            # There are no excluded IP addresses.
+            return False
+        client_ip = request.META.get('HTTP_X_FORWARDED_FOR',
+                                     request.META.get('REMOTE_ADDR')).split(',')[0]
+        try:
+            client_ip = ipaddress.ip_address(client_ip)
+        except ValueError:
+            # Client IP address not valid.
+            return False
+        for network in self.excluded_ips:
+            if client_ip < network[0]:
+                # Networks are sorted, so if client_ip is less than the
+                # current networks first address, client_ip is not in the list.
+                break
+            if client_ip in network:
+                return True
+        return False
 
     def process_request(self, request):
         if request.session.get(self.altcha_session_key, False):
-            # User already passed Altcha verification
+            # User already passed Altcha verification.
             return None
-        elif request.path in {reverse('dam:dam_form')} | set(self.exclude_paths):
-            # Path is exempt from Altcha verification
+        elif request.path in {reverse('dam:dam_form')} | set(self.excluded_paths):
+            # Path is exempt from Altcha verification.
             return None
-        # TODO add ip whitelisting
+        elif self.exclude_ip(request):
+            # IP address is exempt from Altcha verification.
+            return None
         # Redirect to Altcha verification page
         dam_url = f'{reverse("dam:dam_form")}?next={request.path}'
         return redirect(dam_url)
+
+
+def make_ip_list(ip_addresses):
+    """Convert supplied [CIDR] IP addresses to ip address objects.
+
+    Takes an interable of individual or CIDR IP addresses, and converts
+    them to a list of ipaddress.ip_network objects.
+    """
+    networks = set()
+    for address in ip_addresses:
+        try:
+            networks.add(ipaddress.ip_network(address))
+        except ValueError as err:
+            # Skip invalid ip address
+            # TODO use logging
+            print('Could not exclude supplied ip address', err)
+    return list(networks)
