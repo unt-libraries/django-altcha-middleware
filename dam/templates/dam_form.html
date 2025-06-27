@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html;  charset=UTF-8" />
+    <meta name="robots" content="noindex,nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DAM</title>
     <!-- <link rel="stylesheet" href="/static/dam.css"> -->
@@ -9,6 +10,7 @@
 </head>
 <body>
     <h1>Gauging your humanity...</h1>
+    <h2>This may take some seconds.</h2>
     <form id="altcha-submission" action="{% url 'dam:dam_form' %}" method="POST">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next_url }}">
