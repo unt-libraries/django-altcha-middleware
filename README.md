@@ -1,2 +1,11 @@
-Django Altcha Middleware
-------------------------
+# Django Altcha Middleware
+
+## Settings
+
+* ALTCHA_HMAC_KEY
+* ALTCHA_MAX_NUMBER
+* ALTCHA_SESSION_KEY
+* ALTCHA_JS_URL
+* ALTCHA_SESSION_KEY
+* ALTCHA_EXCLUDE_PATHS
+* ALTCHA_EXCLUDE_IPS
