@@ -53,14 +53,14 @@ class AltchaMiddleware(MiddlewareMixin):
         if request.session.get(self.altcha_session_key, False):
             # User already passed Altcha verification.
             return None
-        elif request.path in {reverse('dam:dam_form')} | set(self.excluded_paths):
+        elif request.path in {reverse('dam:challenge')} | set(self.excluded_paths):
             # Path is exempt from Altcha verification.
             return None
         elif self.exclude_ip(request):
             # IP address is exempt from Altcha verification.
             return None
         # Redirect to Altcha verification page
-        dam_url = f'{reverse("dam:dam_form")}?next={request.path}'
+        dam_url = f'{reverse("dam:challenge")}?next={request.path}'
         return redirect(dam_url)
 
 

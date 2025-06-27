@@ -11,12 +11,28 @@
 <body>
     <h1>Gauging your humanity...</h1>
     <h2>This may take some seconds.</h2>
-    <form id="altcha-submission" action="{% url 'dam:dam_form' %}" method="POST">
+    <form id="altcha-submission" action="{% url 'dam:challenge' %}" method="POST">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next_url }}">
-        {{ form }}
+				<altcha-widget id="altcha"></altcha-widget>
     </form>
     <script type="text/javascript">
+        window.addEventListener("load", () => {
+            document.querySelector("#altcha").configure({
+                challenge: {
+                    algorithm: "{{ challenge.algorithm }}",
+                    challenge: "{{ challenge.challenge }}",
+                    salt: "{{ challenge.salt }}",
+                    signature: "{{ challenge.signature }}",
+                    maxnumber: "{{ challenge.max_number }}",
+                },
+                auto: "onload",
+                debug: true,
+                delay: 0,
+                hidefooter: true,
+                hidelogo: true,
+            });
+        });
         document.querySelector("altcha-widget").addEventListener("statechange", (ev) => {
             if (ev.detail.state === "verified") {
                 setTimeout(() => {
