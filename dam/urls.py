@@ -1,11 +1,10 @@
 from django.urls import path
 
-from .views import dam_challenge, hello
+from dam.views import dam_challenge
 
 
 app_name = 'dam'
 
 urlpatterns = [
     path('', dam_challenge, name='challenge'),
-    path('hello/', hello, name='hello'),
 ]
