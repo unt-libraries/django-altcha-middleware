@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.core.cache import cache
 from altcha import create_challenge, verify_solution, solve_challenge
 
 from .forms import DAMForm
@@ -24,11 +25,16 @@ def dam_challenge(request):
             payload = {}
         ok, err = verify_solution(payload, settings.ALTCHA_HMAC_KEY, check_expires=True)
         destination = request.POST.get('next', ['/'])
-        # If the solution validates, create/update their session dam_expiration and send them off.
-        if isinstance(payload, dict) and ok and destination:
-            # TODO: check for solution in cache and add to cache if not there
+        # If the solution validates and hasn't already been seen, create/update their session dam
+        # expiration and send them off, as well as saving the challenge in cache.
+        if isinstance(payload, dict) and ok and destination and not cache.get(payload.challenge):
+            expire_mins = getattr(settings, 'ALTCHA_EXPIRE_MINUTES', 60)
+            cache.set(
+                payload.challenge,
+                't',
+                timeout=expire_mins*60)
             altcha_session_key = getattr(settings, 'ALTCHA_SESSION_KEY', 'altcha_verified')
-            request.session[altcha_session_key] = time.time() + (settings.ALTCHA_EXPIRE_MINUTES*60)
+            request.session[altcha_session_key] = time.time() + expire_mins*60
             return redirect(destination)
         # Otherwise, reject them.
         else:
