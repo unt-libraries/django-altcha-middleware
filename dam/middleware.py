@@ -1,5 +1,6 @@
 import ipaddress
 import time
+from urllib.parse import quote_plus
 
 from django.conf import settings
 from django.shortcuts import redirect
@@ -61,14 +62,14 @@ class AltchaMiddleware(MiddlewareMixin):
             # IP address is exempt from Altcha verification.
             return None
         # Redirect to Altcha verification page
-        dam_url = f'{reverse("dam:challenge")}?next={request.path}'
+        dam_url = f'{reverse("dam:challenge")}?next={quote_plus(request.get_full_path())}'
         return redirect(dam_url)
 
 
 def make_ip_list(ip_addresses):
     """Convert supplied [CIDR] IP addresses to ip address objects.
 
-    Takes an interable of individual or CIDR IP addresses, and converts
+    Takes an iterable of individual or CIDR IP addresses, and converts
     them to a list of ipaddress.ip_network objects.
     """
     networks = set()
