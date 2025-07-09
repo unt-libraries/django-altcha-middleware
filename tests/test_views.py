@@ -1,13 +1,10 @@
 from unittest.mock import patch
-import time
 import base64
 import json
 
 import pytest
 from django.conf import settings
 from django.core.cache import cache
-
-from dam.views import dam_challenge
 
 
 class TestDamChallengeView:
@@ -46,10 +43,12 @@ class TestDamChallengeView:
         payload = {'challenge': '1234abcd'}
         payload_b64_encoded = base64.b64encode(json.dumps(payload).encode()).decode()
         assert not cache.get(payload['challenge'])
-        response = client.post('/?next=%2Fprotected', {'altcha': payload_b64_encoded, 'next': '/protected'}, follow=True)
-        mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY, check_expires=True)
+        response = client.post('/?next=%2Fprotected', {'altcha': payload_b64_encoded,
+                                                       'next': '/protected'}, follow=True)
+        mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY,
+                                                     check_expires=True)
         assert response.redirect_chain == [('/protected', 302)]
-        assert client.session[settings.ALTCHA_SESSION_KEY] == settings.ALTCHA_EXPIRE_MINUTES*60 + 1.0
+        assert client.session[settings.ALTCHA_SESSION_KEY] == settings.ALTCHA_EXPIRE_MINUTES*60+1.0
         assert cache.get(payload['challenge'])
 
     @pytest.mark.django_db
@@ -59,8 +58,10 @@ class TestDamChallengeView:
         payload = {'challenge': '1234abcd'}
         payload_b64_encoded = base64.b64encode(json.dumps(payload).encode()).decode()
         assert not cache.get(payload['challenge'])
-        response = client.post('/?next=%2Fprotected', {'altcha': payload_b64_encoded, 'next': '/protected'}, follow=True)
-        mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY, check_expires=True)
+        response = client.post('/?next=%2Fprotected', {'altcha': payload_b64_encoded,
+                                                       'next': '/protected'}, follow=True)
+        mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY,
+                                                     check_expires=True)
         assert response.redirect_chain == []
         assert response.status_code == 429
         assert response.content.decode() == 'Challenge failed or no longer valid.'
@@ -74,8 +75,10 @@ class TestDamChallengeView:
         payload = {'challenge': '1234abcd'}
         payload_b64_encoded = base64.b64encode(json.dumps(payload).encode()).decode()
         cache.set(payload['challenge'], 't', timeout=settings.ALTCHA_EXPIRE_MINUTES*60)
-        response = client.post('/?next=%2Fprotected', {'altcha': payload_b64_encoded, 'next': '/protected'}, follow=True)
-        mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY, check_expires=True)
+        response = client.post('/?next=%2Fprotected', {'altcha': payload_b64_encoded,
+                                                       'next': '/protected'}, follow=True)
+        mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY,
+                                                     check_expires=True)
         assert response.redirect_chain == []
         assert response.status_code == 429
         assert response.content.decode() == 'Challenge failed or no longer valid.'
