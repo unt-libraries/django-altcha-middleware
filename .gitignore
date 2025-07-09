@@ -9,3 +9,5 @@
 .venv/
 .python-version
 **/__pycache__
+.continue
+.vscode
