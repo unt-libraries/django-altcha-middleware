@@ -78,6 +78,5 @@ def make_ip_list(ip_addresses):
             networks.add(ipaddress.ip_network(address))
         except ValueError as err:
             # Skip invalid ip address
-            # TODO use logging
             print('Could not exclude supplied ip address', err)
     return list(networks)
