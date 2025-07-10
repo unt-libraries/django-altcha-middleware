@@ -10,7 +10,7 @@ setup(
     install_requires=[
         'django >=4.2, <=5.2',
         'altcha ~= 0.2.0',
-    ]
+    ],
     url='https://github.com/unt-libraries/django-altcha-middleware',
     author='University of North Texas Libraries',
     author_email='mark.phillips@unt.edu',
