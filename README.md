@@ -102,7 +102,7 @@ challenge.
 * To run the unit tests against all available versions of Python from 3.9 - 3.12, as well as the
    flake8 lint checks and coverage report:
     ```sh
-    $ tox -qs
+    $ tox
     ```
 
 ## License

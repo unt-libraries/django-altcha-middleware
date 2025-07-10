@@ -6,5 +6,5 @@ from dam.views import dam_challenge
 app_name = 'dam'
 
 urlpatterns = [
-    path('', dam_challenge, name='challenge'),
+    path('dam/', dam_challenge, name='challenge'),
 ]

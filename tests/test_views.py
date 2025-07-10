@@ -12,7 +12,7 @@ class TestDamChallengeView:
 
     def test_get_request_serves_challenge_page(self, client):
         """A GET request should serve the challenge page."""
-        response = client.get('/?next=%2Fprotected', follow=True)
+        response = client.get('/dam/?next=%2Fprotected%2F', follow=True)
         assert response.context['challenge'].max_number == settings.ALTCHA_MAX_NUMBER
         assert hasattr(response.context['challenge'], 'challenge')
         assert hasattr(response.context['challenge'], 'salt')
@@ -20,14 +20,14 @@ class TestDamChallengeView:
         assert response.status_code == 200
         assert ['dam_challenge.html'] == [a.name for a in response.templates]
         assert response.context['js_src_url'] == settings.ALTCHA_JS_URL
-        assert response.context['next_url'] == '/protected'
+        assert response.context['next_url'] == '/protected/'
         assert response.redirect_chain == []
 
     @pytest.mark.django_db
     @patch('dam.views.verify_solution', return_value=[False, None])
     def test_post_request_fails_with_no_payload(self, mock_verify_solution, client):
         """A POST request with no payload should return a 429."""
-        response = client.post('/?next=%2Fprotected', follow=True)
+        response = client.post('/dam/?next=%2Fprotected%2F', follow=True)
         assert response.status_code == 429
         assert response.content.decode() == 'Challenge failed or no longer valid.'
         assert response.redirect_chain == []
@@ -43,11 +43,11 @@ class TestDamChallengeView:
         payload = {'challenge': '1234abcd'}
         payload_b64_encoded = base64.b64encode(json.dumps(payload).encode()).decode()
         assert not cache.get(payload['challenge'])
-        response = client.post('/?next=%2Fprotected', {'altcha': payload_b64_encoded,
-                                                       'next': '/protected'}, follow=True)
+        response = client.post('/dam/?next=%2Fprotected%2F', {'altcha': payload_b64_encoded,
+                                                              'next': '/protected/'}, follow=True)
         mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY,
                                                      check_expires=True)
-        assert response.redirect_chain == [('/protected', 302)]
+        assert response.redirect_chain == [('/protected/', 302)]
         assert client.session[settings.ALTCHA_SESSION_KEY] == settings.ALTCHA_EXPIRE_MINUTES*60+1.0
         assert cache.get(payload['challenge'])
 
@@ -58,8 +58,8 @@ class TestDamChallengeView:
         payload = {'challenge': '1234abcd'}
         payload_b64_encoded = base64.b64encode(json.dumps(payload).encode()).decode()
         assert not cache.get(payload['challenge'])
-        response = client.post('/?next=%2Fprotected', {'altcha': payload_b64_encoded,
-                                                       'next': '/protected'}, follow=True)
+        response = client.post('/dam/?next=%2Fprotected%2F', {'altcha': payload_b64_encoded,
+                                                              'next': '/protected/'}, follow=True)
         mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY,
                                                      check_expires=True)
         assert response.redirect_chain == []
@@ -75,8 +75,8 @@ class TestDamChallengeView:
         payload = {'challenge': '1234abcd'}
         payload_b64_encoded = base64.b64encode(json.dumps(payload).encode()).decode()
         cache.set(payload['challenge'], 't', timeout=settings.ALTCHA_EXPIRE_MINUTES*60)
-        response = client.post('/?next=%2Fprotected', {'altcha': payload_b64_encoded,
-                                                       'next': '/protected'}, follow=True)
+        response = client.post('/dam/?next=%2Fprotected%2F', {'altcha': payload_b64_encoded,
+                                                              'next': '/protected/'}, follow=True)
         mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY,
                                                      check_expires=True)
         assert response.redirect_chain == []

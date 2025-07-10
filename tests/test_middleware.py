@@ -32,7 +32,7 @@ class TestAltchaMiddleware:
     def test_exclude_ip(self, current_ip, expected, rf):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
-        request = rf.get('/')
+        request = rf.get('/dam/')
         request.META['HTTP_X_FORWARDED_FOR'] = current_ip
         assert AM.exclude_ip(request) == expected
 
@@ -40,14 +40,14 @@ class TestAltchaMiddleware:
     def test_exclude_ip_no_excluded_networks(self, rf):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
-        request = rf.get('/')
+        request = rf.get('/dam/')
         request.META['HTTP_X_FORWARDED_FOR'] = '1.1.1.1'
         assert AM.exclude_ip(request) is False
 
     def test_exclude_ip_invalid_ip_address(self, rf):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
-        request = rf.get('/')
+        request = rf.get('/dam/')
         request.META['HTTP_X_FORWARDED_FOR'] = ''
         assert AM.exclude_ip(request) is False
 
@@ -63,7 +63,7 @@ class TestAltchaMiddleware:
                                          expected_ip, rf):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
-        request = rf.get('/')
+        request = rf.get('/dam/')
         if forwarded_for:
             request.META['HTTP_X_FORWARDED_FOR'] = forwarded_for
         if remote_addr:
@@ -75,19 +75,19 @@ class TestAltchaMiddleware:
     def test_process_request_user_exempt(self, rf):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
-        request = rf.get('/protected')
+        request = rf.get('/protected/')
         request.session = {settings.ALTCHA_SESSION_KEY: time()+100}
         assert AM.process_request(request) is None
 
     @pytest.mark.django_db
     @pytest.mark.parametrize('path', [
         reverse('dam:challenge'),   # We never add another challenge to the challenge page
-        '/open'           # Set as an excluded path in the test
+        '/open/'           # Set as an excluded path in the test
     ])
     def test_process_request_path_exempt(self, path, rf):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
-        AM.excluded_paths = ['/open']
+        AM.excluded_paths = ['/open/']
         request = rf.get(path)
         request.session = {}
         assert AM.process_request(request) is None
@@ -98,7 +98,7 @@ class TestAltchaMiddleware:
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
         AM.exclude_ip = Mock(return_value=True)
-        request = rf.get('/protected')
+        request = rf.get('/protected/')
         request.session = {}
         request.META['HTTP_X_FORWARDED_FOR'] = '127.0.0.1'  # Explicitly excluded
         assert AM.process_request(request) is None
@@ -109,11 +109,11 @@ class TestAltchaMiddleware:
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
         AM.exclude_ip = Mock(return_value=False)
-        request = rf.get('/protected?search=stuff')
+        request = rf.get('/protected/?search=stuff')
         request.session = {}
         response = AM.process_request(request)
         assert response.status_code == 302
-        assert response.url == reverse('dam:challenge')+'?next=%2Fprotected%3Fsearch%3Dstuff'
+        assert response.url == reverse('dam:challenge')+'?next=%2Fprotected%2F%3Fsearch%3Dstuff'
 
 
 class TestMakeIPList:
