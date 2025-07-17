@@ -52,9 +52,11 @@ class TestAltchaMiddleware:
         assert AM.exclude_ip(request) is False
 
     @pytest.mark.parametrize('forwarded_for, remote_addr, expected_ip', [
+        ('1.1.1.1', None, '1.1.1.1'),
         ('1.1.1.1, 2.2.2.2', None, '1.1.1.1'),
-        ('1.1.1.1, 2.2.2.2', '3.3.3.3, 4.4.4.4', '1.1.1.1'),
-        (None, '3.3.3.3, 4.4.4.4', '3.3.3.3'),
+        ('1.1.1.1', '3.3.3.3', '1.1.1.1'),
+        ('1.1.1.1, 2.2.2.2', '3.3.3.3', '1.1.1.1'),
+        (None, '3.3.3.3', '3.3.3.3'),
     ])
     @patch('dam.middleware.ipaddress.ip_address', side_effect=ValueError)
     @patch('dam.middleware.make_ip_list', Mock(return_value=[ip_network('1.2.0.0/16'),

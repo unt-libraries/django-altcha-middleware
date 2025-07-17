@@ -26,9 +26,9 @@ class TestDamChallengeView:
     @pytest.mark.django_db
     @patch('dam.views.verify_solution', return_value=[False, None])
     def test_post_request_fails_with_no_payload(self, mock_verify_solution, client):
-        """A POST request with no payload should return a 429."""
+        """A POST request with no payload should return a 400."""
         response = client.post('/dam/?next=%2Fprotected%2F', follow=True)
-        assert response.status_code == 429
+        assert response.status_code == 400
         assert response.content.decode() == 'Challenge failed or no longer valid.'
         assert response.redirect_chain == []
         mock_verify_solution.assert_called_once_with(
@@ -48,13 +48,14 @@ class TestDamChallengeView:
         mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY,
                                                      check_expires=True)
         assert response.redirect_chain == [('/protected/', 302)]
-        assert client.session[settings.ALTCHA_SESSION_KEY] == settings.ALTCHA_EXPIRE_MINUTES*60+1.0
+        expected_auth_expiration = settings.ALTCHA_AUTH_EXPIRE_MINUTES * 60 + 1.0
+        assert client.session[settings.ALTCHA_SESSION_KEY] == expected_auth_expiration
         assert cache.get(payload['challenge'])
 
     @pytest.mark.django_db
     @patch('dam.views.verify_solution', return_value=[False, None])
     def test_post_request_invalid_challenge_response(self, mock_verify_solution, client):
-        """POST request with invalid challenge solution should return a 429 and failure message."""
+        """POST request with invalid challenge solution should return a 400 and failure message."""
         payload = {'challenge': '1234abcd'}
         payload_b64_encoded = base64.b64encode(json.dumps(payload).encode()).decode()
         assert not cache.get(payload['challenge'])
@@ -63,7 +64,7 @@ class TestDamChallengeView:
         mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY,
                                                      check_expires=True)
         assert response.redirect_chain == []
-        assert response.status_code == 429
+        assert response.status_code == 400
         assert response.content.decode() == 'Challenge failed or no longer valid.'
         assert client.session.get(settings.ALTCHA_SESSION_KEY) is None
         assert not cache.get(payload['challenge'])
@@ -74,12 +75,12 @@ class TestDamChallengeView:
         """POST request with valid but already-seen challenge solution is rejected."""
         payload = {'challenge': '1234abcd'}
         payload_b64_encoded = base64.b64encode(json.dumps(payload).encode()).decode()
-        cache.set(payload['challenge'], 't', timeout=settings.ALTCHA_EXPIRE_MINUTES*60)
+        cache.set(payload['challenge'], 't', timeout=settings.ALTCHA_AUTH_EXPIRE_MINUTES*60)
         response = client.post('/dam/?next=%2Fprotected%2F', {'altcha': payload_b64_encoded,
                                                               'next': '/protected/'}, follow=True)
         mock_verify_solution.assert_called_once_with(payload, settings.ALTCHA_HMAC_KEY,
                                                      check_expires=True)
         assert response.redirect_chain == []
-        assert response.status_code == 429
+        assert response.status_code == 400
         assert response.content.decode() == 'Challenge failed or no longer valid.'
         assert client.session.get(settings.ALTCHA_SESSION_KEY) is None

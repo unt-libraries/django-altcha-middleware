@@ -25,20 +25,21 @@ def dam_challenge(request):
         # expiration and send them off, as well as saving the challenge in cache.
         if (isinstance(payload, dict) and ok and destination
                 and not cache.get(payload.get('challenge'))):
-            expire_mins = getattr(settings, 'ALTCHA_EXPIRE_MINUTES', 60)
+            auth_expire_mins = getattr(settings, 'ALTCHA_AUTH_EXPIRE_MINUTES', 60)
             cache.set(
                 payload['challenge'],
                 't',
-                timeout=expire_mins*60)
+                timeout=auth_expire_mins*60)
             altcha_session_key = getattr(settings, 'ALTCHA_SESSION_KEY', 'altcha_verified')
-            request.session[altcha_session_key] = time.time() + expire_mins*60
+            request.session[altcha_session_key] = time.time() + auth_expire_mins*60
             return redirect(destination)
         # Otherwise, reject them.
-        return HttpResponse('Challenge failed or no longer valid.', status=429)
+        return HttpResponse('Challenge failed or no longer valid.', status=400)
     # For normal requests, create the challenge and send it.
     else:
+        challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 20)
         challenge = create_challenge(
-            expires=datetime.datetime.now() + datetime.timedelta(seconds=30),
+            expires=datetime.datetime.now() + datetime.timedelta(minutes=challenge_expire_mins),
             max_number=settings.ALTCHA_MAX_NUMBER,
             hmac_key=settings.ALTCHA_HMAC_KEY,
             # Use the params to add arbitrary values to the salt, potentially increasing security

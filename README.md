@@ -5,7 +5,7 @@ Django-altcha-middleware (dam) is meant to be a proof-of-work deterrent for bots
 This Django app uses Altcha to create a challenge for protected pages that is solved
 by using cryptographic functions to find a hidden number. Once a user successfully
 solves a challenge (done automatically by the browser, no user input required), they
-will not be challenged again for a period defined by ALTCHA_EXPIRE_MINUTES. This app
+will not be challenged again for a period defined by ALTCHA_AUTH_EXPIRE_MINUTES. This app
 may be used to protect an entire site by using the provided middleware, or only certain
 views by using the provided decorator.
 
@@ -30,13 +30,14 @@ To install this app into your existing Django project:
         ...,
         'dam',
     ]
-    ALTCHA_HMAC_KEY = 'something'   # REQUIRED: Secret string used for challenges.
-    ALTCHA_MAX_NUMBER = 50000   # REQUIRED: Altcha challenge difficulty.
-    ALTCHA_EXPIRE_MINUTES = 60  # Minutes between successful challenges for a user.
-    ALTCHA_SESSION_KEY = 'altcha_verified'  # Session key name that tracks successful challenges.
-    ALTCHA_JS_URL = '/static/altcha/altcha.min.js'  # Where to find the altcha widget JS.
-    ALTCHA_EXCLUDE_PATHS = set()    # Set of paths to exclude from challenges.
-    ALTCHA_EXCLUDE_IPS = []     # List of strings representing CIDRs or IPs to never challenge.
+    ALTCHA_HMAC_KEY = 'something'                   # REQUIRED: Secret string used for challenges.
+    ALTCHA_MAX_NUMBER = 50000                       # REQUIRED: Altcha challenge difficulty.
+    ALTCHA_AUTH_EXPIRE_MINUTES = 60                 # Minutes the user is authorized for after solving a challenge.
+    ALTCHA_CHALLENGE_EXPIRE_MINUTES = 60            # Minutes before a given challenge expires.
+    ALTCHA_SESSION_KEY = 'altcha_verified'          # Session key name that tracks successful challenges.
+    ALTCHA_JS_URL = '/static/altcha/altcha.min.js'	# Where to find the altcha widget JS.
+    ALTCHA_EXCLUDE_PATHS = set()                    # Set of paths to exclude from challenges.
+    ALTCHA_EXCLUDE_IPS = []                         # List of strings representing CIDRs or IPs to never challenge.
     ```
 3. Add the challenge URL to your project's urls.py module:
     ```python
