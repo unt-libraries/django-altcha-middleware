@@ -43,7 +43,7 @@ def dam_challenge(request):
             max_number=settings.ALTCHA_MAX_NUMBER,
             hmac_key=settings.ALTCHA_HMAC_KEY,
             # Use the params to add arbitrary values to the salt, potentially increasing security
-            params={},
+            params=getattr(settings, 'ALTCHA_SALT_PARAMS', {}),
         )
         return render(
             request,

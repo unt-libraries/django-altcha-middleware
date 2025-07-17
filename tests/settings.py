@@ -6,6 +6,8 @@ ALTCHA_AUTH_EXPIRE_MINUTES = 60
 
 ALTCHA_CHALLENGE_EXPIRE_MINUTES = 20
 
+ALTCHA_SALT_PARAMS = {}
+
 ALTCHA_SESSION_KEY = 'altcha_verified'
 
 ALTCHA_JS_URL = '/static/altcha/altcha.min.js'

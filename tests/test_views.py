@@ -12,10 +12,11 @@ class TestDamChallengeView:
 
     def test_get_request_serves_challenge_page(self, client):
         """A GET request should serve the challenge page."""
+        settings.ALTCHA_SALT_PARAMS = {'some': 'thing'}
         response = client.get('/dam/?next=%2Fprotected%2F', follow=True)
         assert response.context['challenge'].max_number == settings.ALTCHA_MAX_NUMBER
         assert hasattr(response.context['challenge'], 'challenge')
-        assert hasattr(response.context['challenge'], 'salt')
+        assert response.context['challenge'].salt.endswith('&some=thing')
         assert hasattr(response.context['challenge'], 'signature')
         assert response.status_code == 200
         assert ['dam_challenge.html'] == [a.name for a in response.templates]

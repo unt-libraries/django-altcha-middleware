@@ -34,6 +34,7 @@ To install this app into your existing Django project:
     ALTCHA_MAX_NUMBER = 50000                       # REQUIRED: Altcha challenge difficulty.
     ALTCHA_AUTH_EXPIRE_MINUTES = 60                 # Minutes the user is authorized for after solving a challenge.
     ALTCHA_CHALLENGE_EXPIRE_MINUTES = 60            # Minutes before a given challenge expires.
+	ALTCHA_SALT_PARAMS = {}                         # Additional query parameters to append to the challenge salt.
     ALTCHA_SESSION_KEY = 'altcha_verified'          # Session key name that tracks successful challenges.
     ALTCHA_JS_URL = '/static/altcha/altcha.min.js'	# Where to find the altcha widget JS.
     ALTCHA_EXCLUDE_PATHS = set()                    # Set of paths to exclude from challenges.
