@@ -25,7 +25,7 @@ def dam_challenge(request):
         # expiration and send them off, as well as saving the challenge in cache.
         if (isinstance(payload, dict) and ok and destination
                 and not cache.get(payload.get('challenge'))):
-            challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 20)
+            challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 2)
             auth_expire_mins = getattr(settings, 'ALTCHA_AUTH_EXPIRE_MINUTES', 60)
             cache.set(
                 payload['challenge'],
@@ -38,7 +38,7 @@ def dam_challenge(request):
         return HttpResponse('Challenge failed or no longer valid.', status=400)
     # For normal requests, create the challenge and send it.
     else:
-        challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 20)
+        challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 2)
         challenge = create_challenge(
             expires=datetime.datetime.now() + datetime.timedelta(minutes=challenge_expire_mins),
             max_number=settings.ALTCHA_MAX_NUMBER,
