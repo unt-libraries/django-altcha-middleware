@@ -25,11 +25,12 @@ def dam_challenge(request):
         # expiration and send them off, as well as saving the challenge in cache.
         if (isinstance(payload, dict) and ok and destination
                 and not cache.get(payload.get('challenge'))):
+            challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 20)
             auth_expire_mins = getattr(settings, 'ALTCHA_AUTH_EXPIRE_MINUTES', 60)
             cache.set(
                 payload['challenge'],
                 't',
-                timeout=auth_expire_mins*60)
+                timeout=challenge_expire_mins*60)
             altcha_session_key = getattr(settings, 'ALTCHA_SESSION_KEY', 'altcha_verified')
             request.session[altcha_session_key] = time.time() + auth_expire_mins*60
             return redirect(destination)
