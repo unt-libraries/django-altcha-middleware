@@ -32,7 +32,7 @@ To install this app into your existing Django project:
     ]
     ALTCHA_HMAC_KEY = 'something'                   # REQUIRED: Secret string used for challenges.
     ALTCHA_MAX_NUMBER = 50000                       # REQUIRED: Altcha challenge difficulty.
-    ALTCHA_AUTH_EXPIRE_MINUTES = 60                 # Minutes the user is authorized for after solving a challenge.
+    ALTCHA_AUTH_EXPIRE_MINUTES = 480                # Minutes the user is authorized for after solving a challenge.
     ALTCHA_CHALLENGE_EXPIRE_MINUTES = 2             # Minutes before a given challenge expires.
     ALTCHA_SALT_PARAMS = {}                         # Additional query parameters to append to the challenge salt.
     ALTCHA_SESSION_KEY = 'altcha_verified'          # Session key name that tracks successful challenges.

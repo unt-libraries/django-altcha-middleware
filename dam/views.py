@@ -26,7 +26,7 @@ def dam_challenge(request):
         if (isinstance(payload, dict) and ok and destination
                 and not cache.get(payload.get('challenge'))):
             challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 2)
-            auth_expire_mins = getattr(settings, 'ALTCHA_AUTH_EXPIRE_MINUTES', 60)
+            auth_expire_mins = getattr(settings, 'ALTCHA_AUTH_EXPIRE_MINUTES', 480)
             cache.set(
                 payload['challenge'],
                 't',
