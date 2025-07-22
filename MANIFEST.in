@@ -1,0 +1,3 @@
+recursive-include dam/templates *
+recursive-include dam/static *
+recursive-exclude tests *

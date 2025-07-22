@@ -3,7 +3,6 @@ from setuptools import setup, find_packages
 setup(
     name='dam',
     version='1.0.0',
-    packages=find_packages(exclude=['tests*']),
     description='Django app for adding altcha proof-of-work challenges to views.',
     long_description='See the home page for more information.',
     include_package_data=True,

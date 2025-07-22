@@ -13,3 +13,5 @@
 .vscode
 .coverage
 .tox
+**/build
+dist
