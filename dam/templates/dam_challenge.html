@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;  charset=UTF-8" />
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAM</title>
+    <!-- <link rel="stylesheet" href="/static/dam.css"> -->
+    <script async defer src="{{ js_src_url }}" type="module"></script>
+</head>
+<body>
+    <h1>Gauging your humanity...</h1>
+    <h2>This may take some seconds.</h2>
+    <form id="altcha-submission" action="{% url 'dam:challenge' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+				<altcha-widget id="altcha"></altcha-widget>
+    </form>
+    <script type="text/javascript">
+        window.addEventListener("load", () => {
+            document.querySelector("#altcha").configure({
+                challenge: {
+                    algorithm: "{{ challenge.algorithm }}",
+                    challenge: "{{ challenge.challenge }}",
+                    salt: "{{ challenge.salt }}",
+                    signature: "{{ challenge.signature }}",
+                    maxnumber: "{{ challenge.max_number }}",
+                },
+                auto: "onload",
+                debug: true,
+                delay: 0,
+                hidefooter: true,
+                hidelogo: true,
+            });
+        });
+        document.querySelector("altcha-widget").addEventListener("statechange", (ev) => {
+            if (ev.detail.state === "verified") {
+                setTimeout(() => {
+                    document.forms["altcha-submission"].submit();
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
