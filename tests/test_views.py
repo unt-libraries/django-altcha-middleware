@@ -21,6 +21,7 @@ class TestDamChallengeView:
         assert response.status_code == 200
         assert ['dam_challenge.html'] == [a.name for a in response.templates]
         assert response.context['js_src_url'] == settings.ALTCHA_JS_URL
+        assert response.context['site_icon_url'] == settings.ALTCHA_SITE_ICON_URL
         assert response.context['next_url'] == '/protected/'
         assert response.redirect_chain == []
 

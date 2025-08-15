@@ -1,0 +1,35 @@
+:root {
+  --altcha-border-width: 1px;
+  --altcha-border-radius: 3px;
+  --altcha-color-base: #f5f5f5;
+  --altcha-color-border: #a0a0a0;
+  --altcha-color-text: currentColor;
+  --altcha-color-border-focus: currentColor;
+  --altcha-color-error-text: #f23939;
+  --altcha-color-footer-bg: #f4f4f4;
+  --altcha-max-width: 260px;
+}
+
+h1, h2, h3 {
+  width: 29%;
+  margin-top: auto;
+  margin-bottom: 2%;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+h2, h3 {
+  font-weight: normal
+}
+
+img {
+  height: 1em;
+}
+
+#altcha-submission {
+  width:25%;
+  margin-top:3%;
+  margin-right: auto;
+  margin-left: auto;
+}

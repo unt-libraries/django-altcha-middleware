@@ -5,12 +5,13 @@
     <meta name="robots" content="noindex,nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DAM</title>
-    <!-- <link rel="stylesheet" href="/static/dam.css"> -->
+    <link rel="stylesheet" href="/static/dam/dam.css">
     <script async defer src="{{ js_src_url }}" type="module"></script>
 </head>
 <body>
-    <h1>Gauging your humanity...</h1>
-    <h2>This may take some seconds.</h2>
+    <h1><img src="{{ site_icon_url }}"> {{ request.get_host }}</h1>
+    <h2>Gauging your humanity...</h2>
+    <h3>This may take some seconds.</h3>
     <form id="altcha-submission" action="{% url 'dam:challenge' %}" method="POST">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next_url }}">
@@ -27,10 +28,10 @@
                     maxnumber: "{{ challenge.max_number }}",
                 },
                 auto: "onload",
-                debug: true,
+                debug: false,
                 delay: 0,
                 hidefooter: true,
-                hidelogo: true,
+                hidelogo: false,
             });
         });
         document.querySelector("altcha-widget").addEventListener("statechange", (ev) => {

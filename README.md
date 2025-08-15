@@ -36,7 +36,8 @@ To install this app into your existing Django project:
     ALTCHA_CHALLENGE_EXPIRE_MINUTES = 2             # Minutes before a given challenge expires.
     ALTCHA_SALT_PARAMS = {}                         # Additional query parameters to append to the challenge salt.
     ALTCHA_SESSION_KEY = 'altcha_verified'          # Session key name that tracks successful challenges.
-    ALTCHA_JS_URL = '/static/altcha/altcha.min.js'	# Where to find the altcha widget JS.
+    ALTCHA_SITE_ICON_URL = ''                       # Where to find the site icon for use on the challenge page.
+    ALTCHA_JS_URL = '/static/altcha/altcha.min.js'  # Where to find the altcha widget JS.
     ALTCHA_EXCLUDE_PATHS = set()                    # Set of paths to exclude from challenges.
     ALTCHA_EXCLUDE_IPS = []                         # List of strings representing CIDRs or IPs to never challenge.
     ```
