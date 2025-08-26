@@ -1,0 +1,30 @@
+name: Test django-altcha-middleware
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.9', '3.10', '3.11', '3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt requirements-test.txt
+      - name: Run the tests (and collect coverage data)
+        run: coverage run -m pytest
+      - name: Lint with flake8
+        if: ${{ matrix.python }} == '3.12'
+        run: flake8 dam tests --count --max-line-length=99 --statistics
+      - name: Show the test coverage report
+        if: ${{ matrix.python }} == '3.12'
+        run: coverage report -m --fail-under=95
