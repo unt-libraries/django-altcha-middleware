@@ -28,8 +28,8 @@ jobs:
       - name: Run the tests (and collect coverage data)
         run: coverage run -m pytest
       - name: Lint with flake8
-        if: ${{ matrix.python == '3.12' }} && ${{ matrix.django == '4.2' }}
+        if: matrix.python == '3.12' && matrix.django == '4.2'
         run: flake8 dam tests --count --max-line-length=99 --statistics
       - name: Show the test coverage report
-        if: ${{ matrix.python == '3.12' }} && ${{ matrix.django == '4.2' }}
+        if: matrix.python == '3.12' && matrix.django == '4.2'
         run: coverage report -m --fail-under=95
