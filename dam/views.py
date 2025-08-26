@@ -49,7 +49,10 @@ def dam_challenge(request):
         return render(
             request,
             'dam_challenge.html',
-            {'challenge': challenge,
-             'js_src_url': getattr(settings, 'ALTCHA_JS_URL', '/static/altcha/altcha.min.js'),
-             'next_url': request.GET.get('next', '/')}
+            {
+                'challenge': challenge,
+                'site_icon_url': getattr(settings, 'ALTCHA_SITE_ICON_URL', ''),
+                'js_src_url': getattr(settings, 'ALTCHA_JS_URL', '/static/altcha/altcha.min.js'),
+                'next_url': request.GET.get('next', '/'),
+            }
         )

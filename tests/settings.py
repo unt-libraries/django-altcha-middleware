@@ -10,6 +10,8 @@ ALTCHA_SALT_PARAMS = {}
 
 ALTCHA_SESSION_KEY = 'altcha_verified'
 
+ALTCHA_SITE_ICON_URL = ''
+
 ALTCHA_JS_URL = '/static/altcha/altcha.min.js'
 
 ALTCHA_EXCLUDE_PATHS = []

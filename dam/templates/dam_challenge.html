@@ -5,17 +5,21 @@
     <meta name="robots" content="noindex,nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DAM</title>
-    <!-- <link rel="stylesheet" href="/static/dam.css"> -->
+    <link rel="stylesheet" href="/static/dam/dam.css">
     <script async defer src="{{ js_src_url }}" type="module"></script>
 </head>
 <body>
-    <h1>Gauging your humanity...</h1>
-    <h2>This may take some seconds.</h2>
-    <form id="altcha-submission" action="{% url 'dam:challenge' %}" method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next_url }}">
-				<altcha-widget id="altcha"></altcha-widget>
-    </form>
+    <div>
+        <h1><img src="{{ site_icon_url }}"> {{ request.get_host }}</h1>
+        <h2>Gauging your humanity...This may take some seconds.</h2>
+        <div>
+            <form id="altcha-submission" action="{% url 'dam:challenge' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next_url }}">
+                <altcha-widget id="altcha"></altcha-widget>
+            </form>
+        </div>
+    </div>
     <script type="text/javascript">
         window.addEventListener("load", () => {
             document.querySelector("#altcha").configure({
@@ -27,10 +31,10 @@
                     maxnumber: "{{ challenge.max_number }}",
                 },
                 auto: "onload",
-                debug: true,
+                debug: false,
                 delay: 0,
                 hidefooter: true,
-                hidelogo: true,
+                hidelogo: false,
             });
         });
         document.querySelector("altcha-widget").addEventListener("statechange", (ev) => {
