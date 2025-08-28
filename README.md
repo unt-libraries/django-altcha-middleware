@@ -9,7 +9,7 @@ will not be challenged again for a period defined by ALTCHA_AUTH_EXPIRE_MINUTES.
 may be used to protect an entire site by using the provided middleware, or only certain
 views by using the provided decorator.
 
-![django-altcha-middleware-challenge](https://github.com/user-attachments/assets/341c9941-87c6-46ae-aea6-89a4426b5a71)
+![django-altcha-middleware challenge view screenshot](https://github.com/user-attachments/assets/341c9941-87c6-46ae-aea6-89a4426b5a71)
 
 ## Requirements
 
