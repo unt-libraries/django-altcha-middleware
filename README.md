@@ -1,5 +1,8 @@
 # Django Altcha Middleware
 
+[![Build Status](https://github.com/unt-libraries/django-altcha-middleware/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/unt-libraries/django-altcha-middleware/actions)
+
+
 ## About
 Django-altcha-middleware (dam) is meant to be a proof-of-work deterrent for bots.
 This Django app uses Altcha to create a challenge for protected pages that is solved
