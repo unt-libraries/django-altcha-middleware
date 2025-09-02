@@ -40,8 +40,13 @@ To install this app into your existing Django project:
     ALTCHA_SESSION_KEY = 'altcha_verified'          # Session key name that tracks successful challenges.
     ALTCHA_SITE_ICON_URL = ''                       # Where to find the site icon for use on the challenge page.
     ALTCHA_JS_URL = '/static/altcha/altcha.min.js'  # Where to find the altcha widget JS.
+    ALTCHA_MESSAGE = ('Gauging your humanity...'    # Message to present to users on the challenge page.
+                      'This may take some seconds.')
     ALTCHA_EXCLUDE_PATHS = set()                    # Set of paths to exclude from challenges.
     ALTCHA_EXCLUDE_IPS = []                         # List of strings representing CIDRs or IPs to never challenge.
+    ALTCHA_EXCLUDE_HEADERS = {}                     # Dict of HTTP header keys (case insensitive) with values to exempt from challenge.
+                                                    # Values should be given as raw strings as the middleware converts them to case-insensitive regex patterns.
+                                                    # Example: {'User-Agent': r'Googlebot|Siteimprove\.com'}
     ```
 3. Add the challenge URL to your project's urls.py module:
     ```python
