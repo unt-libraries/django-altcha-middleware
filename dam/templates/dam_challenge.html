@@ -11,7 +11,7 @@
 <body>
     <div>
         <h1><img src="{{ site_icon_url }}"> {{ request.get_host }}</h1>
-        <h2>Gauging your humanity...This may take some seconds.</h2>
+        <h2>{{ altcha_message }}</h2>
         <div>
             <form id="altcha-submission" action="{% url 'dam:challenge' %}" method="POST">
                 {% csrf_token %}

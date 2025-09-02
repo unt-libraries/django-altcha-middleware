@@ -53,6 +53,9 @@ def dam_challenge(request):
                 'challenge': challenge,
                 'site_icon_url': getattr(settings, 'ALTCHA_SITE_ICON_URL', ''),
                 'js_src_url': getattr(settings, 'ALTCHA_JS_URL', '/static/altcha/altcha.min.js'),
+                'altcha_message': getattr(settings,
+                                          'ALTCHA_MESSAGE',
+                                          'Gauging your humanity...This may take some seconds.'),
                 'next_url': request.GET.get('next', '/'),
             }
         )
