@@ -1,3 +1,4 @@
+import re
 from unittest.mock import patch, Mock
 from ipaddress import ip_network
 from time import time
@@ -6,13 +7,14 @@ from django.conf import settings
 from django.urls import reverse
 import pytest
 
-from dam.middleware import AltchaMiddleware, make_ip_list
+from dam.middleware import AltchaMiddleware, make_excluded_headers, make_ip_list
 
 
 class TestAltchaMiddleware:
     @patch('dam.middleware.make_ip_list', return_value=[ip_network('1.2.0.0/16'),
                                                         ip_network('127.0.0.1/32')])
-    def test_init(self, mock_make_ip_list):
+    @patch('dam.middleware.make_excluded_headers', return_value={})
+    def test_init(self, mock_make_excluded_headers, mock_make_ip_list):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
         assert AM.get_response == mock_get_response
@@ -20,6 +22,8 @@ class TestAltchaMiddleware:
         assert AM.excluded_paths == settings.ALTCHA_EXCLUDE_PATHS
         mock_make_ip_list.assert_called_once_with(settings.ALTCHA_EXCLUDE_IPS)
         assert AM.excluded_ips == mock_make_ip_list.return_value
+        mock_make_excluded_headers.assert_called_once_with(settings.ALTCHA_EXCLUDE_HEADERS)
+        assert AM.excluded_headers == mock_make_excluded_headers.return_value
 
     @pytest.mark.parametrize('current_ip, expected', [
         ('127.0.0.1', True),    # Exact IP excluded
@@ -73,6 +77,22 @@ class TestAltchaMiddleware:
         AM.exclude_ip(request)
         mock_ip_address.assert_called_once_with(expected_ip)
 
+    def test_exclude_headers_gives_match(self, rf):
+        mock_get_response = Mock()
+        AM = AltchaMiddleware(mock_get_response)
+        AM.excluded_headers = {'User-Agent': re.compile(r'Friendlybot')}
+        request = rf.get('/protected/')
+        request.headers = {'User-Agent': 'Mozilla Friendlybot 5.0'}
+        assert AM.exclude_headers(request)
+
+    def test_exclude_headers_no_match(self, rf):
+        mock_get_response = Mock()
+        AM = AltchaMiddleware(mock_get_response)
+        AM.excluded_headers = {'User-Agent': re.compile(r'Friendlybot')}
+        request = rf.get('/protected/')
+        request.headers = {'User-Agent': 'Badbot 5.0'}
+        assert not AM.exclude_headers(request)
+
     @pytest.mark.django_db
     def test_process_request_user_exempt(self, rf):
         mock_get_response = Mock()
@@ -107,6 +127,16 @@ class TestAltchaMiddleware:
         AM.exclude_ip.assert_called_once_with(request)
 
     @pytest.mark.django_db
+    def test_process_request_header_exempt(self, rf):
+        mock_get_response = Mock()
+        AM = AltchaMiddleware(mock_get_response)
+        AM.exclude_headers = Mock(return_value=True)
+        request = rf.get('/protected/')
+        request.session = {}
+        assert AM.process_request(request) is None
+        AM.exclude_headers.assert_called_once_with(request)
+
+    @pytest.mark.django_db
     def test_process_request_challenge_user(self, rf):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
@@ -124,3 +154,11 @@ class TestMakeIPList:
         expected = [ip_network('1.2.0.0/16'), ip_network('127.0.0.1')]
         assert make_ip_list(ip_addresses) == expected
         assert capsys.readouterr().out.startswith('Could not exclude supplied ip address')
+
+
+class TestMakeExcludedHeaders:
+    def test_make_excluded_headers(self):
+        exclusions = {'User-Agent': r'Somebot 2.0', 'Content-Length': r'^\d{,4}$'}
+        expected = {'Content-Length': re.compile('^\\d{,4}$', re.IGNORECASE),
+                    'User-Agent': re.compile('Somebot 2.0', re.IGNORECASE)}
+        assert make_excluded_headers(exclusions) == expected
