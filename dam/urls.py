@@ -1,10 +1,11 @@
 from django.urls import path
 
-from dam.views import dam_challenge
+from dam.views import dam_challenge, submit_challenge
 
 
 app_name = 'dam'
 
 urlpatterns = [
     path('dam/', dam_challenge, name='challenge'),
+    path('dam/submit/', submit_challenge, name='submit_challenge'),
 ]

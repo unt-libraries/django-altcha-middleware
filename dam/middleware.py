@@ -80,6 +80,7 @@ class AltchaMiddleware(MiddlewareMixin):
             return None
         # Redirect to Altcha verification page
         dam_url = f'{reverse("dam:challenge")}?next={quote_plus(request.get_full_path())}'
+        request.session[f'referer{request.get_full_path()}'] = request.META.get('HTTP_REFERER', '')
         return redirect(dam_url)
 
 

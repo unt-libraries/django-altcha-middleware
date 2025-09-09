@@ -9,11 +9,11 @@
     <script async defer src="{{ js_src_url }}" type="module"></script>
 </head>
 <body>
-    <div>
+    <div id="altcha-content">
         <h1><img src="{{ site_icon_url }}"> {{ request.get_host }}</h1>
         <h2>{{ altcha_message }}</h2>
         <div>
-            <form id="altcha-submission" action="{% url 'dam:challenge' %}" method="POST">
+            <form id="altcha-submission">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ next_url }}">
                 <altcha-widget id="altcha"></altcha-widget>
@@ -37,11 +37,26 @@
                 hidelogo: false,
             });
         });
-        document.querySelector("altcha-widget").addEventListener("statechange", (ev) => {
-            if (ev.detail.state === "verified") {
-                setTimeout(() => {
-                    document.forms["altcha-submission"].submit();
-                }, 1000);
+        document.querySelector("altcha-widget").addEventListener("statechange", async (ev) => {
+            if (await ev.detail.state === "verified") {
+                const challengeData = new FormData(document.forms["altcha-submission"]);
+                try {
+                   const response = await fetch("{% url 'dam:submit_challenge' %}", {
+                        method: "POST",
+                        body: challengeData,
+                    });
+                    const result = await response.json();
+                    if ("success" in result) {
+                        if ("{{ original_referrer }}") {
+                            window.history.replaceState({}, "" , "{{ original_referrer }}");
+                        }
+                        window.location.replace("{{ next_url }}");
+                    } else {
+                        document.getElementById('altcha-content').textContent = result.error;
+                    }
+                } catch (error) {
+                    console.error("Challenge submission error:", error);
+                }
             }
         });
     </script>
