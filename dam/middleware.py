@@ -1,4 +1,5 @@
 import ipaddress
+import re
 import time
 from urllib.parse import quote_plus
 
@@ -25,6 +26,10 @@ class AltchaMiddleware(MiddlewareMixin):
                                 [])
         self.excluded_ips = make_ip_list(ip_exclusions)
         self.excluded_ips.sort()
+        header_exclusions = getattr(settings,
+                                    'ALTCHA_EXCLUDE_HEADERS',
+                                    {})
+        self.excluded_headers = make_excluded_headers(header_exclusions)
 
     def exclude_ip(self, request):
         """Determine if client IP can skip Altcha verification.
@@ -51,6 +56,15 @@ class AltchaMiddleware(MiddlewareMixin):
                 return True
         return False
 
+    def exclude_headers(self, request):
+        """Determine if request headers warrant skipping verification."""
+        for header, pattern in self.excluded_headers.items():
+            value = request.headers.get(header, '')
+            if value.strip() and pattern.search(value):
+                # Client sent header that allows bypassing verification.
+                return True
+        return False
+
     def process_request(self, request):
         if time.time() <= request.session.get(self.altcha_session_key, 0):
             # User already passed Altcha verification and their approval hasn't expired yet.
@@ -60,6 +74,9 @@ class AltchaMiddleware(MiddlewareMixin):
             return None
         elif self.exclude_ip(request):
             # IP address is exempt from Altcha verification.
+            return None
+        elif self.exclude_headers(request):
+            # Request includes HTTP header with value exempt from verification.
             return None
         # Redirect to Altcha verification page
         dam_url = f'{reverse("dam:challenge")}?next={quote_plus(request.get_full_path())}'
@@ -80,3 +97,8 @@ def make_ip_list(ip_addresses):
             # Skip invalid ip address
             print('Could not exclude supplied ip address', err)
     return list(networks)
+
+
+def make_excluded_headers(header_exclusions):
+    """Convert headers' string values into case-insensitive regular expression patterns."""
+    return {k: re.compile(v, re.I) for k, v in header_exclusions.items()}
