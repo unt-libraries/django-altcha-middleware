@@ -16,7 +16,7 @@ views by using the provided decorator.
 
 ## Requirements
 
-* Python 3.9-3.12
+* Python 3.9-3.13
 * Django 4.2-5.2
 
 ## Installation
@@ -112,8 +112,8 @@ challenge.
 
 ### Running the tests
 
-* To run the unit tests against all available versions of Python from 3.9 - 3.12, as well as the
-   flake8 lint checks and coverage report:
+* To run the unit tests against all available versions of Python from 3.9 - 3.13, as well as the
+   Ruff lint/style checks and coverage report:
     ```sh
     $ tox
     ```

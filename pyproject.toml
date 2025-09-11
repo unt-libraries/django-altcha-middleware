@@ -1,5 +1,7 @@
 [build]
-requires = ['setuptools']
+requires = [
+    'setuptools',
+]
 build-backend = 'setuptools.build_meta'
 
 [project]
@@ -10,8 +12,9 @@ readme = 'README.md'
 authors = [{name='University of North Texas Libraries', email='mark.phillips@unt.edu'}]
 dependencies = [
     'django >= 4.2, <= 5.2',
-    'altcha ~= 0.2.0']
-requires-python = '>=3.9, < 3.13'
+    'altcha ~= 0.2.0',
+]
+requires-python = '>=3.9, <= 3.14'
 license = {file = 'LICENSE.txt'}
 keywords = [
     'django',
@@ -19,7 +22,7 @@ keywords = [
     'bots',
     'proof-of-work',
     'middleware',
-    'decorator'
+    'decorator',
 ]
 classifiers = [
     'Natural Language :: English',
@@ -36,3 +39,57 @@ classifiers = [
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = 'tests.settings'
+python_files = 'test_*.py'
+addopts = '--disable-warnings'
+
+[tool.coverage.run]
+include = [
+    './dam/*',
+    './tests/*',
+]
+omit = [
+    './tests/views.py',
+    './tests/urls.py',
+]
+
+[tool.coverage.report]
+fail_under = 95
+
+[tool.ruff]
+line-length = 99
+
+[tool.ruff.format]
+quote-style = 'single'
+
+[tool.tox]
+legacy_tox_ini = '''
+    [tox]
+    envlist = py3{9,10,11,12}-django42, py3{10,11,12,13}-django{50,51,52}, py312-ruff, py312-coverage
+    skip_missing_interpreters = true
+
+    [testenv]
+    deps =
+        django42: Django~=4.2.0
+        django50: Django~=5.0.0
+        django51: Django~=5.1.0
+        django52: Django~=5.2.0
+        -rrequirements.txt
+        -rrequirements-test.txt
+    commands = pytest
+
+    [testenv:py312-django52]
+    commands = coverage run -m pytest
+
+    [testenv:py312-ruff]
+    skip_install = true
+    deps = ruff
+    commands = ruff check
+
+    [testenv:py312-coverage]
+    skip_install = true
+    deps = coverage
+    commands = coverage report -m
+'''
