@@ -8,4 +8,5 @@ def protected_view(request, *args, **kwargs):
 
 
 def open_view(request, *args, **kwargs):
-    return HttpResponse('This view is open to anyone.')
+    return HttpResponse('This view is open to anyone. '
+                        'View a <a href="/protected/">protected</a> page.')
