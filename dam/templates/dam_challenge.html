@@ -37,8 +37,9 @@
                 hidelogo: false,
             });
         });
-        document.querySelector("altcha-widget").addEventListener("statechange", async (ev) => {
-            if (await ev.detail.state === "verified") {
+        document.querySelector("altcha-widget").addEventListener("statechange", async (e) => {
+            await e.detail;
+            if (e.detail.state === "verified") {
                 const challengeData = new FormData(document.forms["altcha-submission"]);
                 try {
                    const response = await fetch("{% url 'dam:submit_challenge' %}", {
