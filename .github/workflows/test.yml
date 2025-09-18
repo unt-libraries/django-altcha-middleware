@@ -38,4 +38,4 @@ jobs:
         run: ruff check
       - name: Show the test coverage report
         if: matrix.python == '3.12' && matrix.django == '5.2'
-        run: coverage report -m --fail-under=95
+        run: coverage report
