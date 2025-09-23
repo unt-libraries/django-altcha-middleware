@@ -19,6 +19,9 @@
                 <altcha-widget id="altcha"></altcha-widget>
             </form>
         </div>
+        {% if help_text %}
+            <h3>{{ help_text }}</h3>
+        {% endif %}
     </div>
     <script type="text/javascript">
         window.addEventListener("load", () => {
@@ -53,9 +56,10 @@
                         }
                         window.location.replace("{{ next_url }}");
                     } else {
-                        document.getElementById('altcha-content').textContent = result.error;
+                        document.getElementById('altcha-content').textContent = result.error + " " + "{{ help_text }}";
                     }
                 } catch (error) {
+                    document.getElementById('altcha-content').textContent = error + " " + "{{ help_text }}";
                     console.error("Challenge submission error:", error);
                 }
             }
