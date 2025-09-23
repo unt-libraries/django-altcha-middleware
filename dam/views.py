@@ -62,4 +62,5 @@ def submit_challenge(request):
         request.session[altcha_session_key] = time.time() + auth_expire_mins*60
         return JsonResponse({'success': True})
     # Otherwise, reject them.
-    return JsonResponse({'error': 'Challenge failed or no longer valid.'}, status=400)
+    fail_msg = getattr(settings, 'ALTCHA_FAIL_MESSAGE', 'Challenge failed or no longer valid.')
+    return JsonResponse({'error': fail_msg}, status=400)

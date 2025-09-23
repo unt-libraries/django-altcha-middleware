@@ -29,12 +29,13 @@ class TestSubmitChallengeView:
     """Unit tests for submit_challenge view."""
 
     @pytest.mark.django_db
+    @patch('dam.views.settings.ALTCHA_FAIL_MESSAGE', 'Sorry, please try again.')
     @patch('dam.views.verify_solution', return_value=[False, None])
     def test_post_request_fails_with_no_payload(self, mock_verify_solution, client):
         """A POST request with no payload should return a 400."""
         response = client.post('/dam/submit/')
         assert response.status_code == 400
-        assert response.content.decode() == '{"error": "Challenge failed or no longer valid."}'
+        assert response.content.decode() == '{"error": "Sorry, please try again."}'
         mock_verify_solution.assert_called_once_with(
             {}, settings.ALTCHA_HMAC_KEY, check_expires=True)
         assert client.session.get(settings.ALTCHA_SESSION_KEY) is None
