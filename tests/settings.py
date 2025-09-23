@@ -14,6 +14,10 @@ ALTCHA_SITE_ICON_URL = ''
 
 ALTCHA_JS_URL = '/static/altcha/altcha.min.js'
 
+ALTCHA_MESSAGE = 'Gauging your humanity...This may take some seconds.'
+
+ALTCHA_FAIL_MESSAGE = 'Challenge failed or no longer valid.'
+
 ALTCHA_EXCLUDE_PATHS = []
 
 ALTCHA_EXCLUDE_IPS = []
