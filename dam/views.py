@@ -30,7 +30,10 @@ def dam_challenge(request):
         {
             'challenge': challenge,
             'site_icon_url': getattr(settings, 'ALTCHA_SITE_ICON_URL', ''),
-            'js_src_url': getattr(settings, 'ALTCHA_JS_URL', '/static/altcha/altcha.min.js'),
+            'js_src_url': getattr(
+                settings, 'ALTCHA_JS_URL', f'{settings.STATIC_URL}altcha/altcha.min.js'),
+            'css_src_url': getattr(
+                settings, 'ALTCHA_CSS_URL', f'{settings.STATIC_URL}dam/dam.css'),
             'altcha_message': getattr(settings,
                                       'ALTCHA_MESSAGE',
                                       'Gauging your humanity...This may take some seconds.'),
