@@ -42,7 +42,9 @@ To install this app into your existing Django project:
     ALTCHA_SALT_PARAMS = {}                         # Additional query parameters to append to the challenge salt.
     ALTCHA_SESSION_KEY = 'altcha_verified'          # Session key name that tracks successful challenges.
     ALTCHA_SITE_ICON_URL = ''                       # Where to find the site icon for use on the challenge page.
-    ALTCHA_JS_URL = '/static/altcha/altcha.min.js'  # Where to find the altcha widget JS.
+    ALTCHA_JS_URL = (f'{STATIC_URL}altcha/'          # Where to find the altcha widget JS.
+                     'altcha.min.js')
+    ALTCHA_CSS_URL = f'{STATIC_URL}dam/dam.css'      # Where to find the altcha widget CSS.
     ALTCHA_MESSAGE = ('Gauging your humanity...'    # Message to present to users on the challenge page.
                       'This may take some seconds.')
 	ALTCHA_FAIL_MESSAGE = ('Challenge failed or no' # Message to show users when their challenge response is unsuccessful.
