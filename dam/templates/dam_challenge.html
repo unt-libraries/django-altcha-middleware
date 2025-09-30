@@ -59,7 +59,7 @@
                         document.getElementById('altcha-content').textContent = `${result.error} {{ help_text }}`;
                     }
                 } catch (error) {
-                    document.getElementById('altcha-content').textContent = error + " " + "{{ help_text }}";
+                    document.getElementById('altcha-content').textContent = `${error} {{ help_text }}`;
                     console.error("Challenge submission error:", error);
                 }
             }
