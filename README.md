@@ -47,8 +47,9 @@ To install this app into your existing Django project:
     ALTCHA_CSS_URL = f'{STATIC_URL}dam/dam.css'      # Where to find the altcha widget CSS.
     ALTCHA_MESSAGE = ('Gauging your humanity...'    # Message to present to users on the challenge page.
                       'This may take some seconds.')
-	ALTCHA_FAIL_MESSAGE = ('Challenge failed or no' # Message to show users when their challenge response is unsuccessful.
-						   ' longer valid.')
+    ALTCHA_HELP_MESSAGE = ''                        # Message shown on challenge page and in errors indicating how to seek help on challenge failure/error.
+    ALTCHA_FAIL_MESSAGE = ('Challenge failed or no' # Message to show users when their challenge response is unsuccessful.
+                           ' longer valid.')
     ALTCHA_EXCLUDE_PATHS = set()                    # Set of paths to exclude from challenges.
     ALTCHA_EXCLUDE_IPS = []                         # List of strings representing CIDRs or IPs to never challenge.
     ALTCHA_EXCLUDE_HEADERS = {}                     # Dict of HTTP header keys (case insensitive) with values to exempt from challenge.

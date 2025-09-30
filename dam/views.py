@@ -39,6 +39,9 @@ def dam_challenge(request):
                                       'Gauging your humanity...This may take some seconds.'),
             'next_url': next_url,
             'original_referrer': request.session.get(f'referer{next_url}', ''),
+            'help_text': getattr(settings,
+                                 'ALTCHA_HELP_MESSAGE',
+                                 ''),
         }
     )
 

@@ -18,6 +18,8 @@ ALTCHA_CSS_URL = '/static/dam/dam.css'
 
 ALTCHA_MESSAGE = 'Gauging your humanity...This may take some seconds.'
 
+ALTCHA_HELP_MESSAGE = ''
+
 ALTCHA_FAIL_MESSAGE = 'Challenge failed or no longer valid.'
 
 ALTCHA_EXCLUDE_PATHS = []

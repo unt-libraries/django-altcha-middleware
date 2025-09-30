@@ -9,12 +9,15 @@
   --altcha-color-footer-bg: #f4f4f4;
 }
 
-h1, h2 {
+#altcha-content {
+  color: #474747;
+  font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+h1, h2, h3 {
   max-width: 45%;
   margin-left: auto;
   margin-right: auto;
-  color: #474747;
-  font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
 h1 {
@@ -23,6 +26,11 @@ h1 {
 
 h2 {
   margin-top: auto;
+  font-weight: normal;
+}
+
+h3 {
+  margin-top: 1em;
   font-weight: normal;
 }
 
