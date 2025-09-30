@@ -56,7 +56,7 @@
                         }
                         window.location.replace("{{ next_url }}");
                     } else {
-                        document.getElementById('altcha-content').textContent = result.error + " " + "{{ help_text }}";
+                        document.getElementById('altcha-content').textContent = `${result.error} {{ help_text }}`;
                     }
                 } catch (error) {
                     document.getElementById('altcha-content').textContent = error + " " + "{{ help_text }}";
