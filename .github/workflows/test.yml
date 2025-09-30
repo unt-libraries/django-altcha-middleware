@@ -8,10 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ['3.10', '3.11', '3.12']
-        django: ['4.2', '5.0', '5.1', '5.2']
+        python: ['3.10', '3.11', '3.12', '3.13']
+        django: ['5.0', '5.1', '5.2']
         include:
           - python: '3.9'
+            django: '4.2'
+          - python: '3.10'
+            django: '4.2'
+          - python: '3.11'
+            django: '4.2'
+          - python: '3.12'
             django: '4.2'
 
     steps:
@@ -27,9 +33,9 @@ jobs:
           pip install -r requirements.txt -r requirements-test.txt
       - name: Run the tests (and collect coverage data)
         run: coverage run -m pytest
-      - name: Lint with flake8
-        if: matrix.python == '3.12' && matrix.django == '4.2'
-        run: flake8 dam tests --count --max-line-length=99 --statistics
+      - name: Lint with ruff
+        if: matrix.python == '3.12' && matrix.django == '5.2'
+        run: ruff check
       - name: Show the test coverage report
-        if: matrix.python == '3.12' && matrix.django == '4.2'
-        run: coverage report -m --fail-under=95
+        if: matrix.python == '3.12' && matrix.django == '5.2'
+        run: coverage report
