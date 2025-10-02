@@ -103,8 +103,9 @@ class TestAltchaMiddleware:
 
     @pytest.mark.django_db
     @pytest.mark.parametrize('path', [
-        reverse('dam:challenge'),   # We never add another challenge to the challenge page
-        '/open/'           # Set as an excluded path in the test
+        reverse('dam:challenge'),           # We never add another challenge to the challenge page
+        reverse('dam:submit_challenge'),    # We never add another challenge to the submission page
+        '/open/'                            # Set as an excluded path in the test
     ])
     def test_process_request_path_exempt(self, path, rf):
         mock_get_response = Mock()
