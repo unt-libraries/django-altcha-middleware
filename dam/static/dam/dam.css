@@ -38,6 +38,10 @@ img {
   height: 1em;
 }
 
+a {
+  color: #4299A1;
+}
+
 #altcha-submission {
   max-width: 45%;
   margin-top: 3%;
