@@ -20,7 +20,7 @@
             </form>
         </div>
         {% if help_text %}
-            <h3>{{ help_text }}</h3>
+            <h3>{{ help_text|safe }}</h3>
         {% endif %}
     </div>
     <script type="text/javascript">
@@ -56,10 +56,10 @@
                         }
                         window.location.replace("{{ next_url }}");
                     } else {
-                        document.getElementById('altcha-content').textContent = `${result.error} {{ help_text }}`;
+                        document.getElementById('altcha-content').innerHTML = `${result.error} {{ help_text|safe }}`;
                     }
                 } catch (error) {
-                    document.getElementById('altcha-content').textContent = `${error} {{ help_text }}`;
+                    document.getElementById('altcha-content').innerHTML = `${error} {{ help_text|safe }}`;
                     console.error("Challenge submission error:", error);
                 }
             }

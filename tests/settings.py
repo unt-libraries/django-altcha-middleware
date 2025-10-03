@@ -18,7 +18,7 @@ ALTCHA_CSS_URL = '/static/dam/dam.css'
 
 ALTCHA_MESSAGE = 'Gauging your humanity...This may take some seconds.'
 
-ALTCHA_HELP_MESSAGE = ''
+ALTCHA_HELP_MESSAGE = 'If you are unable to reach our site content, please <a href="https://example.com">let us know.</a>'
 
 ALTCHA_FAIL_MESSAGE = 'Challenge failed or no longer valid.'
 
