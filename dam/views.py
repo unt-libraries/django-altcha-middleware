@@ -66,6 +66,12 @@ def submit_challenge(request):
             timeout=challenge_expire_mins*60)
         altcha_session_key = getattr(settings, 'ALTCHA_SESSION_KEY', 'altcha_verified')
         request.session[altcha_session_key] = time.time() + auth_expire_mins*60
+        # Remove no longer needed data from session.
+        next_url = request.POST.get('next', ['/'])
+        try:
+            del request.session[f'referer{next_url}']
+        except KeyError:
+            pass
         return JsonResponse({'success': True})
     # Otherwise, reject them.
     fail_msg = getattr(settings, 'ALTCHA_FAIL_MESSAGE', 'Challenge failed or no longer valid.')

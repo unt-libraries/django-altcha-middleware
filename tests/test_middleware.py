@@ -144,9 +144,12 @@ class TestAltchaMiddleware:
         AM.exclude_ip = Mock(return_value=False)
         request = rf.get('/protected/?search=stuff')
         request.session = {}
+        referer = 'https://example.com'
+        request.META['HTTP_REFERER'] = referer
         response = AM.process_request(request)
         assert response.status_code == 302
         assert response.url == reverse('dam:challenge')+'?next=%2Fprotected%2F%3Fsearch%3Dstuff'
+        assert request.session['referer/protected/?search=stuff'] == referer
 
 
 class TestMakeIPList:

@@ -49,6 +49,12 @@ class TestSubmitChallengeView:
         payload = {'challenge': '1234abcd'}
         payload_b64_encoded = base64.b64encode(json.dumps(payload).encode()).decode()
         assert not cache.get(payload['challenge'])
+        # Add referer info to session to verify a successful challenge submission removes it.
+        user_session = client.session
+        referer_key = 'referer/protected/'
+        user_session[referer_key] = 'https://example.com'
+        user_session.save()
+        assert referer_key in client.session
         response = client.post('/dam/submit/', {'altcha': payload_b64_encoded,
                                                 'next': '/protected/'})
         assert response.status_code == 200
@@ -57,6 +63,7 @@ class TestSubmitChallengeView:
                                                      check_expires=True)
         expected_auth_expiration = settings.ALTCHA_AUTH_EXPIRE_MINUTES * 60 + 1.0
         assert client.session[settings.ALTCHA_SESSION_KEY] == expected_auth_expiration
+        assert referer_key not in client.session
         assert cache.get(payload['challenge'])
 
     @pytest.mark.django_db
