@@ -26,10 +26,10 @@ class TestDamChallengeView:
         assert response.context['next_url'] == '/protected/'
 
 
+@pytest.mark.django_db
 class TestSubmitChallengeView:
     """Unit tests for submit_challenge view."""
 
-    @pytest.mark.django_db
     @patch('dam.views.settings.ALTCHA_FAIL_MESSAGE', 'Sorry, please try again.')
     @patch('dam.views.verify_solution', return_value=[False, None])
     def test_post_request_fails_with_no_payload(self, mock_verify_solution, client):
@@ -41,7 +41,6 @@ class TestSubmitChallengeView:
             {}, settings.ALTCHA_HMAC_KEY, check_expires=True)
         assert client.session.get(settings.ALTCHA_SESSION_KEY) is None
 
-    @pytest.mark.django_db
     @patch('dam.views.time.time', return_value=1.0)
     @patch('dam.views.verify_solution', return_value=[True, None])
     def test_post_request_valid_challenge_response(self, mock_verify_solution, mock_time, client):
@@ -59,7 +58,6 @@ class TestSubmitChallengeView:
         assert client.session[settings.ALTCHA_SESSION_KEY] == expected_auth_expiration
         assert cache.get(payload['challenge'])
 
-    @pytest.mark.django_db
     @patch('dam.views.verify_solution', return_value=[False, None])
     def test_post_request_invalid_challenge_response(self, mock_verify_solution, client):
         """POST request with invalid challenge solution should return a 400 and failure message."""
@@ -75,7 +73,6 @@ class TestSubmitChallengeView:
         assert client.session.get(settings.ALTCHA_SESSION_KEY) is None
         assert not cache.get(payload['challenge'])
 
-    @pytest.mark.django_db
     @patch('dam.views.verify_solution', return_value=[True, None])
     def test_post_request_rejects_duplicate_challenge(self, mock_verify_solution, client):
         """POST request with valid but already-seen challenge solution is rejected."""
@@ -89,3 +86,21 @@ class TestSubmitChallengeView:
         assert response.status_code == 400
         assert response.content.decode() == '{"error": "Challenge failed or no longer valid."}'
         assert client.session.get(settings.ALTCHA_SESSION_KEY) is None
+
+    @patch('dam.views.time.time', return_value=1.0)
+    @patch('dam.views.verify_solution')
+    def test_post_request_pass_already_validated_user(self, mock_verify_solution, mock_time,
+                                                      client):
+        """POST request for already-validated user succeeds regardless of challenge response."""
+        # Make sure the client shows as being validated
+        auth_expiration = settings.ALTCHA_AUTH_EXPIRE_MINUTES * 60 + 1.0
+        # Test client session _must_ be stored in a var for changes to take effect.
+        session = client.session
+        session[settings.ALTCHA_SESSION_KEY] = auth_expiration
+        session.save()
+        response = client.post('/dam/submit/', {'altcha': 'not even trying',
+                                                'next': '/protected/'})
+        assert response.status_code == 200
+        assert response.content.decode() == '{"success": true}'
+        # We don't even want to check the solution if the user's already validated
+        mock_verify_solution.assert_not_called()
