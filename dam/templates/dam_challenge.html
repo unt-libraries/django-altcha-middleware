@@ -15,7 +15,6 @@
         <div>
             <form id="altcha-submission">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ next_url }}">
                 <altcha-widget id="altcha"></altcha-widget>
             </form>
         </div>
@@ -51,9 +50,6 @@
                     });
                     const result = await response.json();
                     if ("success" in result) {
-                        if ("{{ original_referrer }}") {
-                            window.history.replaceState({}, "" , "{{ original_referrer }}");
-                        }
                         window.location.replace("{{ next_url }}");
                     } else {
                         document.getElementById('altcha-content').innerHTML = `${result.error} {{ help_text|safe }}`;
