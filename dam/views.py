@@ -49,6 +49,10 @@ def dam_challenge(request):
 @require_POST
 def submit_challenge(request):
     """Attempt to validate Altcha challenge solution."""
+    altcha_session_key = getattr(settings, 'ALTCHA_SESSION_KEY', 'altcha_verified')
+    if time.time() <= request.session.get(altcha_session_key, 0):
+        # User already passed Altcha verification and their approval hasn't expired yet.
+        return JsonResponse({'success': True})
     try:
         payload = json.loads(b64decode(request.POST.get('altcha')))
     except Exception:
