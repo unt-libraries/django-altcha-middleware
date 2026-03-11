@@ -148,6 +148,19 @@ class TestAltchaMiddleware:
         assert response.status_code == 302
         assert response.url == reverse('dam:challenge')+'?next=%2Fprotected%2F%3Fsearch%3Dstuff'
 
+    @pytest.mark.django_db
+    def test_process_request_challenge_user_has_referrer(self, rf):
+        mock_get_response = Mock()
+        AM = AltchaMiddleware(mock_get_response)
+        AM.exclude_ip = Mock(return_value=False)
+        request = rf.get('/protected/?search=stuff')
+        request.session = {}
+        request.headers = {'Referer': 'https://example.com/search?q=unt'}
+        response = AM.process_request(request)
+        assert response.status_code == 302
+        assert response.url == (f'{reverse("dam:challenge")}?next=%2Fprotected%2F%3Fsearch%3Dstuff'
+                                f'&prev=https%3A%2F%2Fexample.com%2Fsearch%3Fq%3Dunt')
+
 
 class TestMakeIPList:
     def test_make_ip_list(self, capsys):

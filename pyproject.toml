@@ -6,7 +6,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'dam'
-version = '1.0.0'
+version = '1.0.1'
 description = 'A Django app allowing you to protect views with an ALTCHA proof-of-work challenge.'
 readme = 'README.md'
 authors = [{name='University of North Texas Libraries', email='mark.phillips@unt.edu'}]

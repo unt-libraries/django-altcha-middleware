@@ -79,9 +79,11 @@ class AltchaMiddleware(MiddlewareMixin):
         elif self.exclude_headers(request):
             # Request includes HTTP header with value exempt from verification.
             return None
+        referrer = request.headers.get('Referer')
         # Redirect to Altcha verification page
         dam_url = f'{reverse("dam:challenge")}?next={quote_plus(request.get_full_path())}'
-        request.session[f'referer{request.get_full_path()}'] = request.META.get('HTTP_REFERER', '')
+        if referrer:
+            dam_url += f'&prev={quote_plus(referrer)}'
         return redirect(dam_url)
 
 
