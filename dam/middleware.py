@@ -40,8 +40,7 @@ class AltchaMiddleware(MiddlewareMixin):
         if not self.excluded_ips:
             # There are no excluded IP addresses.
             return False
-        client_ip = request.META.get('HTTP_X_FORWARDED_FOR',
-                                     request.META.get('REMOTE_ADDR')).split(',')[0]
+        client_ip = get_client_ip(request)
         try:
             client_ip = ipaddress.ip_address(client_ip)
         except ValueError:
@@ -68,9 +67,11 @@ class AltchaMiddleware(MiddlewareMixin):
     def process_request(self, request):
         dam_paths = {reverse('dam:challenge'), reverse('dam:submit_challenge')}
         if time.time() <= request.session.get(self.altcha_session_key, 0):
-            # User already passed Altcha verification and their approval hasn't expired yet.
-            return None
-        elif request.path in dam_paths | set(self.excluded_paths):
+            # User already passed Altcha verification, their approval hasn't expired yet,
+            # and they are still using the same IP address.
+            if request.session.get('ip') == get_client_ip(request):
+                return None
+        if request.path in dam_paths | set(self.excluded_paths):
             # Path is exempt from Altcha verification.
             return None
         elif self.exclude_ip(request):
@@ -106,3 +107,8 @@ def make_ip_list(ip_addresses):
 def make_excluded_headers(header_exclusions):
     """Convert headers' string values into case-insensitive regular expression patterns."""
     return {k: re.compile(v, re.I) for k, v in header_exclusions.items()}
+
+
+def get_client_ip(request):
+    return request.META.get('HTTP_X_FORWARDED_FOR',
+                            request.META.get('REMOTE_ADDR')).split(',')[0]

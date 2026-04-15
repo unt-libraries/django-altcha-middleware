@@ -11,6 +11,8 @@ from django.core.cache import cache
 from django.views.decorators.http import require_GET, require_POST
 from altcha import create_challenge, verify_solution
 
+from dam.middleware import get_client_ip
+
 
 @require_GET
 def dam_challenge(request):
@@ -58,7 +60,7 @@ def submit_challenge(request):
         payload = {}
     ok, err = verify_solution(payload, settings.ALTCHA_HMAC_KEY, check_expires=True)
     # If the solution validates and hasn't already been seen, create/update their session dam
-    # expiration, as well as saving the challenge in cache.
+    # expiration and store client IP address, as well as saving the challenge in cache.
     if (isinstance(payload, dict) and ok
             and not cache.get(payload.get('challenge'))):
         challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 2)
@@ -69,6 +71,8 @@ def submit_challenge(request):
             timeout=challenge_expire_mins*60)
         altcha_session_key = getattr(settings, 'ALTCHA_SESSION_KEY', 'altcha_verified')
         request.session[altcha_session_key] = time.time() + auth_expire_mins*60
+        # Store client IP address to verify on subsequent requests.
+        request.session['ip'] = get_client_ip(request)
         return JsonResponse({'success': True})
     # Otherwise, reject them.
     fail_msg = getattr(settings, 'ALTCHA_FAIL_MESSAGE', 'Challenge failed or no longer valid.')

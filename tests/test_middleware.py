@@ -94,12 +94,29 @@ class TestAltchaMiddleware:
         assert not AM.exclude_headers(request)
 
     @pytest.mark.django_db
-    def test_process_request_user_exempt(self, rf):
+    @patch('dam.middleware.get_client_ip', return_value='127.0.0.1')
+    def test_process_request_user_exempt(self, mock_get_ip, rf):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
         request = rf.get('/protected/')
-        request.session = {settings.ALTCHA_SESSION_KEY: time()+100}
+        request.session = {settings.ALTCHA_SESSION_KEY: time()+100,
+                           'ip': '127.0.0.1'}
         assert AM.process_request(request) is None
+        mock_get_ip.assert_called_once_with(request)
+
+    @pytest.mark.django_db
+    @patch('dam.middleware.get_client_ip', return_value='127.0.0.1')
+    def test_process_request_user_changed_ip_address(self, mock_get_ip, rf):
+        mock_get_response = Mock()
+        AM = AltchaMiddleware(mock_get_response)
+        request = rf.get('/protected/')
+        # Set IP address on session differing from client's IP.
+        request.session = {settings.ALTCHA_SESSION_KEY: time()+100,
+                           'ip': '111.111.111.111'}
+        response = AM.process_request(request)
+        assert response.status_code == 302
+        assert response.url == reverse('dam:challenge')+'?next=%2Fprotected%2F'
+        mock_get_ip.assert_called_once_with(request)
 
     @pytest.mark.django_db
     @pytest.mark.parametrize('path', [
