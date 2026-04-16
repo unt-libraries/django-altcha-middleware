@@ -67,10 +67,15 @@ class AltchaMiddleware(MiddlewareMixin):
     def process_request(self, request):
         dam_paths = {reverse('dam:challenge'), reverse('dam:submit_challenge')}
         if time.time() <= request.session.get(self.altcha_session_key, 0):
-            # User already passed Altcha verification, their approval hasn't expired yet,
-            # and they are still using the same IP address.
-            if request.session.get('ip') == get_client_ip(request):
+            # User already passed Altcha verification, and their approval hasn't expired yet.
+            client_ip = get_client_ip(request)
+            if request.session.get('ip') == client_ip:
+                # Client is still using the same IP address, so good.
                 return None
+            else:
+                # Session user has changed IP address, expire their Altcha verification.
+                request.session[self.altcha_session_key] = 0
+                request.session['ip'] = client_ip
         if request.path in dam_paths | set(self.excluded_paths):
             # Path is exempt from Altcha verification.
             return None
