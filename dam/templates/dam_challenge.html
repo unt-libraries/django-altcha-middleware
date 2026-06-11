@@ -50,7 +50,7 @@
                     });
                     const result = await response.json();
                     if ("success" in result) {
-                        window.location.replace("{{ next_url }}");
+                        window.location.replace("{{ next_url|escapejs }}");
                     } else {
                         document.getElementById('altcha-content').innerHTML = `${result.error} {{ help_text|safe }}`;
                     }
