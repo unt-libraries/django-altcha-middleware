@@ -7,19 +7,22 @@ from django.conf import settings
 from django.urls import reverse
 import pytest
 
-from dam.middleware import AltchaMiddleware, make_excluded_headers, make_ip_list
+from dam.middleware import (AltchaMiddleware, make_excluded_headers, make_ip_list,
+                            make_excluded_paths, get_client_ip)
 
 
 class TestAltchaMiddleware:
+    @patch('dam.middleware.make_excluded_paths', return_value=[])
     @patch('dam.middleware.make_ip_list', return_value=[ip_network('1.2.0.0/16'),
                                                         ip_network('127.0.0.1/32')])
     @patch('dam.middleware.make_excluded_headers', return_value={})
-    def test_init(self, mock_make_excluded_headers, mock_make_ip_list):
+    def test_init(self, mock_make_excluded_headers, mock_make_ip_list, mock_make_excluded_paths):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
         assert AM.get_response == mock_get_response
         assert AM.altcha_session_key == settings.ALTCHA_SESSION_KEY
         assert AM.excluded_paths == settings.ALTCHA_EXCLUDE_PATHS
+        mock_make_excluded_paths.assert_called_once_with(settings.ALTCHA_EXCLUDE_PATHS)
         mock_make_ip_list.assert_called_once_with(settings.ALTCHA_EXCLUDE_IPS)
         assert AM.excluded_ips == mock_make_ip_list.return_value
         mock_make_excluded_headers.assert_called_once_with(settings.ALTCHA_EXCLUDE_HEADERS)
@@ -93,6 +96,20 @@ class TestAltchaMiddleware:
         request.headers = {'User-Agent': 'Badbot 5.0'}
         assert not AM.exclude_headers(request)
 
+    def test_exclude_path(self, rf):
+        mock_get_response = Mock()
+        AM = AltchaMiddleware(mock_get_response)
+        AM.excluded_paths = [re.compile(r'^/api/.*')]
+        request = rf.get('/api/test/')
+        assert AM.exclude_path(request)
+
+    def test_exclude_path_no_match(self, rf):
+        mock_get_response = Mock()
+        AM = AltchaMiddleware(mock_get_response)
+        AM.excluded_paths = [re.compile(r'^/protected/')]
+        request = rf.get('/open/')
+        assert not AM.exclude_path(request)
+
     @pytest.mark.django_db
     @patch('dam.middleware.get_client_ip', return_value='127.0.0.1')
     def test_process_request_user_exempt(self, mock_get_ip, rf):
@@ -122,13 +139,20 @@ class TestAltchaMiddleware:
     @pytest.mark.parametrize('path', [
         reverse('dam:challenge'),           # We never add another challenge to the challenge page
         reverse('dam:submit_challenge'),    # We never add another challenge to the submission page
-        '/open/'                            # Set as an excluded path in the test
     ])
-    def test_process_request_path_exempt(self, path, rf):
+    def test_process_request_dam_path_exempt(self, path, rf):
         mock_get_response = Mock()
         AM = AltchaMiddleware(mock_get_response)
-        AM.excluded_paths = ['/open/']
         request = rf.get(path)
+        request.session = {}
+        assert AM.process_request(request) is None
+
+    @pytest.mark.django_db
+    def test_process_request_path_exempt(self, rf):
+        mock_get_response = Mock()
+        AM = AltchaMiddleware(mock_get_response)
+        AM.excluded_paths = [re.compile(r'^/api/.*')]
+        request = rf.get('/api/status/')
         request.session = {}
         assert AM.process_request(request) is None
 
@@ -193,3 +217,30 @@ class TestMakeExcludedHeaders:
         expected = {'Content-Length': re.compile('^\\d{,4}$', re.IGNORECASE),
                     'User-Agent': re.compile('Somebot 2.0', re.IGNORECASE)}
         assert make_excluded_headers(exclusions) == expected
+
+
+class TestMakeExcludedPaths:
+    def test_make_excluded_paths(self):
+        exclusions = [r'^/api/.*', r'.*\.json$', r'^/protected/$']
+        expected = [re.compile(r'^/api/.*'), re.compile(r'.*\.json$'),
+                    re.compile(r'^/protected/$')]
+        assert make_excluded_paths(exclusions) == expected
+
+
+class TestGetClientIp:
+    @pytest.mark.parametrize('forwarded_for', [
+        '1.1.1.1',
+        '1.1.1.1,2.2.2.2',
+    ])
+    def test_get_client_ip_primary(self, forwarded_for):
+        mock_request = Mock(META={'HTTP_X_FORWARDED_FOR': forwarded_for, 'REMOTE_ADDR': '3.3.3.3'})
+        assert get_client_ip(mock_request) == '1.1.1.1'
+
+    @pytest.mark.parametrize('remote_addr', [
+        '1.1.1.1',
+        '1.1.1.1,2.2.2.2',
+    ])
+    def test_get_client_ip_fallback(self, remote_addr):
+        mock_request = Mock(META={
+            'REMOTE_ADDR': remote_addr})
+        assert get_client_ip(mock_request) == '1.1.1.1'

@@ -18,9 +18,10 @@ class AltchaMiddleware(MiddlewareMixin):
         self.altcha_session_key = getattr(settings,
                                           'ALTCHA_SESSION_KEY',
                                           'altcha_verified')
-        self.excluded_paths = getattr(settings,
-                                      'ALTCHA_EXCLUDE_PATHS',
-                                      set())
+        path_exclusions = getattr(settings,
+                                  'ALTCHA_EXCLUDE_PATHS',
+                                  [])
+        self.excluded_paths = make_excluded_paths(path_exclusions)
         ip_exclusions = getattr(settings,
                                 'ALTCHA_EXCLUDE_IPS',
                                 [])
@@ -64,6 +65,14 @@ class AltchaMiddleware(MiddlewareMixin):
                 return True
         return False
 
+    def exclude_path(self, request):
+        """Determine if request path warrants skipping verification."""
+        for pattern in self.excluded_paths:
+            if pattern.search(request.path):
+                # Path is allowed to bypass verification.
+                return True
+        return False
+
     def process_request(self, request):
         dam_paths = {reverse('dam:challenge'), reverse('dam:submit_challenge')}
         if time.time() <= request.session.get(self.altcha_session_key, 0):
@@ -76,7 +85,10 @@ class AltchaMiddleware(MiddlewareMixin):
                 # Session user has changed IP address, expire their Altcha verification.
                 request.session[self.altcha_session_key] = 0
                 request.session['ip'] = client_ip
-        if request.path in dam_paths | set(self.excluded_paths):
+        if request.path in dam_paths:
+            # URL is internal to dam and exempt.
+            return None
+        elif self.exclude_path(request):
             # Path is exempt from Altcha verification.
             return None
         elif self.exclude_ip(request):
@@ -112,6 +124,11 @@ def make_ip_list(ip_addresses):
 def make_excluded_headers(header_exclusions):
     """Convert headers' string values into case-insensitive regular expression patterns."""
     return {k: re.compile(v, re.I) for k, v in header_exclusions.items()}
+
+
+def make_excluded_paths(path_exclusions):
+    """Convert path string values into regular expression patterns."""
+    return [re.compile(path) for path in path_exclusions]
 
 
 def get_client_ip(request):
