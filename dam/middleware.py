@@ -67,11 +67,7 @@ class AltchaMiddleware(MiddlewareMixin):
 
     def exclude_path(self, request):
         """Determine if request path warrants skipping verification."""
-        for pattern in self.excluded_paths:
-            if pattern.search(request.path):
-                # Path is allowed to bypass verification.
-                return True
-        return False
+        return any(re.search(pattern, request.path) for pattern in self.excluded_paths)
 
     def process_request(self, request):
         dam_paths = {reverse('dam:challenge'), reverse('dam:submit_challenge')}
