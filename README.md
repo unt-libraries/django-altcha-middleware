@@ -42,15 +42,17 @@ To install this app into your existing Django project:
     ALTCHA_SALT_PARAMS = {}                         # Additional query parameters to append to the challenge salt.
     ALTCHA_SESSION_KEY = 'altcha_verified'          # Session key name that tracks successful challenges.
     ALTCHA_SITE_ICON_URL = ''                       # Where to find the site icon for use on the challenge page.
-    ALTCHA_JS_URL = (f'{STATIC_URL}altcha/'          # Where to find the altcha widget JS.
+    ALTCHA_JS_URL = (f'{STATIC_URL}altcha/'         # Where to find the altcha widget JS.
                      'altcha.min.js')
-    ALTCHA_CSS_URL = f'{STATIC_URL}dam/dam.css'      # Where to find the altcha widget CSS.
+    ALTCHA_CSS_URL = f'{STATIC_URL}dam/dam.css'     # Where to find the altcha widget CSS.
     ALTCHA_MESSAGE = ('Gauging your humanity...'    # Message to present to users on the challenge page.
                       'This may take some seconds.')
     ALTCHA_HELP_MESSAGE = ''                        # Message shown on challenge page and in errors indicating how to seek help on challenge failure/error.
     ALTCHA_FAIL_MESSAGE = ('Challenge failed or no' # Message to show users when their challenge response is unsuccessful.
                            ' longer valid.')
-    ALTCHA_EXCLUDE_PATHS = set()                    # Set of paths to exclude from challenges.
+    ALTCHA_EXCLUDE_PATHS = []                       # List of regular expressions (as raw strings) used to exempt URL paths from challenge.
+                                                    # Example: [r'^/api/.*', r'secret', r'\.json$']
+                                                    # Above would exempt paths starting with '/api/', any with 'secret' in the path, and any ending in '.json'
     ALTCHA_EXCLUDE_IPS = []                         # List of strings representing CIDRs or IPs to never challenge.
     ALTCHA_EXCLUDE_HEADERS = {}                     # Dict of HTTP header keys (case insensitive) with values to exempt from challenge.
                                                     # Values should be given as raw strings as the middleware converts them to case-insensitive regex patterns.
