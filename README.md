@@ -102,7 +102,8 @@ the project without setting up your own Django project, run the unit tests, or m
     ```
 3. Install the main and test requirements:
     ```sh
-    $ pip install -rrequirements.txt -rrequirements-test.txt
+    $ pip install -e .
+    $ pip install -e .[test]
     ```
 
 ### Running the test project
@@ -120,10 +121,16 @@ challenge.
 
 ### Running the tests
 
-* To run the unit tests against all available versions of Python from 3.9 - 3.14, as well as the
+* Install tox and run the unit tests against all available versions of Python from 3.9 - 3.14, as well as the
    Ruff lint/style checks and coverage report:
     ```sh
+	$ pip install tox
     $ tox
+    ```
+* Or, to just run the tests against your current versions of Python and Django, along with viewing the coverage report:
+    ```sh
+	$ coverage run -m pytest
+    $ coverage report -m
     ```
 
 ## License
