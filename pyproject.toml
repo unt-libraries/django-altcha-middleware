@@ -6,15 +6,15 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'dam'
-version = '1.0.1'
+version = '2.0.0'
 description = 'A Django app allowing you to protect views with an ALTCHA proof-of-work challenge.'
 readme = 'README.md'
 authors = [{name='University of North Texas Libraries', email='mark.phillips@unt.edu'}]
 dependencies = [
-    'django >= 4.2, <= 5.2',
-    'altcha ~= 0.2.0',
+    'django >= 4.2, <= 6.2',
+    'altcha ~= 2.1.0',
 ]
-requires-python = '>=3.9, <= 3.14'
+requires-python = '>=3.9, <= 3.15'
 license = {file = 'LICENSE.txt'}
 keywords = [
     'django',
@@ -38,21 +38,27 @@ classifiers = [
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
+]
+
+[project.optional-dependencies]
+test = [
+    'pytest ~= 8.4.1',
+    'pytest-django ~= 4.11.1',
+    'tox ~= 4.27.0',
+    'flake8 ~= 7.3.0',
+    'coverage ~= 7.9.2',
+    'ruff ~= 0.12.10',
 ]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = 'tests.settings'
-python_files = 'test_*.py'
 addopts = '--disable-warnings'
 
 [tool.coverage.run]
 include = [
     './dam/*',
-    './tests/*',
-]
-omit = [
-    './tests/views.py',
-    './tests/urls.py',
 ]
 
 [tool.coverage.report]
@@ -60,35 +66,44 @@ fail_under = 95
 
 [tool.ruff]
 line-length = 99
+target-version = 'py314'
 
 [tool.ruff.format]
 quote-style = 'single'
 
+[tool.ruff.lint]
+select = [
+    'E',
+    'F',
+    'W'
+]
+
 [tool.tox]
 legacy_tox_ini = '''
     [tox]
-    envlist = py3{9,10,11,12}-django42, py3{10,11,12,13}-django{50,51,52}, py312-ruff, py312-coverage
+    envlist = py3{9,10,11,12}-django42, py3{10,11,12}-django50, py3{10,11,12,13}-django51, py3{10,11,12,13,14}-django52, py3{12,13,14}-django{60,61}, py314-ruff, py314-coverage
     skip_missing_interpreters = true
 
     [testenv]
+    extras = test
     deps =
         django42: Django~=4.2.0
         django50: Django~=5.0.0
         django51: Django~=5.1.0
         django52: Django~=5.2.0
-        -rrequirements.txt
-        -rrequirements-test.txt
+        django60: Django~=6.0.0
+        django61: Django~=6.1.0
     commands = pytest
 
-    [testenv:py312-django52]
+    [testenv:py314-django61]
     commands = coverage run -m pytest
 
-    [testenv:py312-ruff]
+    [testenv:py314-ruff]
     skip_install = true
     deps = ruff
     commands = ruff check
 
-    [testenv:py312-coverage]
+    [testenv:py314-coverage]
     skip_install = true
     deps = coverage
     commands = coverage report -m

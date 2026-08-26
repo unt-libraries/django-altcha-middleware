@@ -25,18 +25,15 @@
     <script type="text/javascript">
         window.addEventListener("load", () => {
             document.querySelector("#altcha").configure({
-                challenge: {
-                    algorithm: "{{ challenge.algorithm }}",
-                    challenge: "{{ challenge.challenge }}",
-                    salt: "{{ challenge.salt }}",
-                    signature: "{{ challenge.signature }}",
-                    maxnumber: "{{ challenge.max_number }}",
-                },
-                auto: "onload",
+                challenge: {{ challenge|safe }},
+                auto: "{{ auto }}",
+                type: "checkbox",
+                display: "standard",
                 debug: false,
                 delay: 0,
-                hidefooter: true,
-                hidelogo: false,
+                hideFooter: true,
+                hideLogo: false,
+                humanInteractionSignature: false,
             });
         });
         document.querySelector("altcha-widget").addEventListener("statechange", async (e) => {
