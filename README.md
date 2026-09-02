@@ -102,8 +102,7 @@ the project without setting up your own Django project, run the unit tests, or m
     ```
 3. Install the main and test requirements:
     ```sh
-    $ pip install -e .
-    $ pip install -e .[test]
+    $ pip install -e .'[test]'
     ```
 
 ### Running the test project
