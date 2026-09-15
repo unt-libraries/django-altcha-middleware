@@ -107,16 +107,20 @@ the project without setting up your own Django project, run the unit tests, or m
 
 ### Running the test project
 
-1. Start the Django test server:
+1. Run the migrations (only needs to be done once unless you upgrade Django versions):
+    ```sh
+	$ python3 manage.py migrate
+	```
+2. Start the Django test server:
     ```sh
     $ python3 manage.py runserver
     ```
-2. While that is running, open your browser and you can experience the challenge page by visiting
+3. While that is running, open your browser and you can experience the challenge page by visiting
 http://localhost:8000/protected. The test project is set up to protect the `/protected` page
 (redirecting to the `/` challenge page until the challenge is solved, then redirecting again to
 `/protected` after completing the challenge) while leaving the `/open` page available with no
 challenge.
-3. When you are done viewing the pages, you can stop the test server with CTRL-C.
+4. When you are done viewing the pages, you can stop the test server with CTRL-C.
 
 ### Running the tests
 
