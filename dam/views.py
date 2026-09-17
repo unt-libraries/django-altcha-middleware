@@ -1,7 +1,7 @@
 import json
 import time
 import datetime
-from base64 import b64decode
+import secrets
 
 
 from django.conf import settings
@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.cache import cache
 from django.views.decorators.http import require_GET, require_POST
-from altcha import create_challenge, verify_solution
+from altcha import create_challenge, verify_solution, Payload
 
 from dam.middleware import get_client_ip
 
@@ -18,19 +18,21 @@ from dam.middleware import get_client_ip
 def dam_challenge(request):
     """Provide user an Altcha challenge to solve before allowing access."""
     challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 2)
+    counter = secrets.randbelow(settings.ALTCHA_COST) + settings.ALTCHA_COST
     challenge = create_challenge(
-        expires=datetime.datetime.now() + datetime.timedelta(minutes=challenge_expire_mins),
-        max_number=settings.ALTCHA_MAX_NUMBER,
-        hmac_key=settings.ALTCHA_HMAC_KEY,
-        # Use the params to add arbitrary values to the salt, potentially increasing security
-        params=getattr(settings, 'ALTCHA_SALT_PARAMS', {}),
+        algorithm='PBKDF2/SHA-256',
+        cost=settings.ALTCHA_COST,
+        counter=counter,
+        expires_at=datetime.datetime.now() + datetime.timedelta(minutes=challenge_expire_mins),
+        hmac_secret=settings.ALTCHA_HMAC_KEY,
+        hmac_key_secret=settings.ALTCHA_HMAC_KEY_SECRET,
     )
     next_url = request.GET.get('next', '/')
     return render(
         request,
         'dam_challenge.html',
         {
-            'challenge': challenge,
+            'challenge': json.dumps(challenge.to_dict()),
             'site_icon_url': getattr(settings, 'ALTCHA_SITE_ICON_URL', ''),
             'js_src_url': getattr(
                 settings, 'ALTCHA_JS_URL', f'{settings.STATIC_URL}altcha/altcha.min.js'),
@@ -43,6 +45,7 @@ def dam_challenge(request):
             'help_text': getattr(settings,
                                  'ALTCHA_HELP_MESSAGE',
                                  ''),
+            'auto': getattr(settings, 'ALTCHA_AUTO', 'onload'),
         }
     )
 
@@ -55,18 +58,18 @@ def submit_challenge(request):
         # User already passed Altcha verification and their approval hasn't expired yet.
         return JsonResponse({'success': True})
     try:
-        payload = json.loads(b64decode(request.POST.get('altcha')))
+        payload = Payload.from_base64(request.POST.get('altcha'))
     except Exception:
         payload = {}
-    ok, err = verify_solution(payload, settings.ALTCHA_HMAC_KEY, check_expires=True)
+    result = verify_solution(
+        payload, settings.ALTCHA_HMAC_KEY, hmac_key_secret=settings.ALTCHA_HMAC_KEY_SECRET)
     # If the solution validates and hasn't already been seen, create/update their session dam
     # expiration and store client IP address, as well as saving the challenge in cache.
-    if (isinstance(payload, dict) and ok
-            and not cache.get(payload.get('challenge'))):
+    if (result.verified and not cache.get(payload.challenge.signature)):
         challenge_expire_mins = getattr(settings, 'ALTCHA_CHALLENGE_EXPIRE_MINUTES', 2)
         auth_expire_mins = getattr(settings, 'ALTCHA_AUTH_EXPIRE_MINUTES', 480)
         cache.set(
-            payload['challenge'],
+            payload.challenge.signature,
             't',
             timeout=challenge_expire_mins*60)
         altcha_session_key = getattr(settings, 'ALTCHA_SESSION_KEY', 'altcha_verified')

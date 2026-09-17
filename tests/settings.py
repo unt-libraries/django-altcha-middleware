@@ -1,12 +1,14 @@
-ALTCHA_HMAC_KEY = 'donotuseinproduction'
+ALTCHA_HMAC_KEY = 'efccf9522651f2a463692ea122e128ccfdc95b963a04a07216e01175a5dca63e'
 
-ALTCHA_MAX_NUMBER = 100000
+ALTCHA_HMAC_KEY_SECRET = 'cd5f0604b7e6ffd31a8e8fe935475a87880032e26105747d6b2472608a5bac6e'
+
+ALTCHA_COST = 2_500
+
+ALTCHA_AUTO = 'off'
 
 ALTCHA_AUTH_EXPIRE_MINUTES = 480
 
 ALTCHA_CHALLENGE_EXPIRE_MINUTES = 2
-
-ALTCHA_SALT_PARAMS = {}
 
 ALTCHA_SESSION_KEY = 'altcha_verified'
 
@@ -18,7 +20,8 @@ ALTCHA_CSS_URL = '/static/dam/dam.css'
 
 ALTCHA_MESSAGE = 'Gauging your humanity...This may take some seconds.'
 
-ALTCHA_HELP_MESSAGE = 'If you are unable to reach our site content, please <a href="https://example.com">let us know.</a>'
+ALTCHA_HELP_MESSAGE = ('If you are unable to reach our site content, please '
+                       '<a href="https://example.com">let us know.</a>')
 
 ALTCHA_FAIL_MESSAGE = 'Challenge failed or no longer valid.'
 

@@ -16,8 +16,8 @@ views by using the provided decorator.
 
 ## Requirements
 
-* Python 3.9-3.13
-* Django 4.2-5.2
+* Python 3.9-3.14
+* Django 4.2-6.1
 
 ## Installation
 
@@ -28,18 +28,19 @@ To install this app into your existing Django project:
     $ pip install git+https://github.com/unt-libraries/django-altcha-middleware
     ```
 2. Within your project's settings file, add `dam` to your Django project's INSTALLED_APPS list and
-   define `ALTCHA_HMAC_KEY` and `ALTCHA_MAX_NUMBER`, as well as the other settings if you'd like to
-   override their default values (shown below):
+   define `ALTCHA_HMAC_KEY`, `ALTCHA_HMAC_KEY_SECRET`, and `ALTCHA_COST`, as well as the other settings
+   if you'd like to override their default values (shown below):
     ```python
     INSTALLED_APPS = [
         ...,
         'dam',
     ]
     ALTCHA_HMAC_KEY = 'something'                   # REQUIRED: Secret string used for challenges.
-    ALTCHA_MAX_NUMBER = 50000                       # REQUIRED: Altcha challenge difficulty.
+	ALTCHA_HMAC_KEY_SECRET = 'something-else'       # REQUIRED: Enables fast server-side verification without re-deriving the key.
+    ALTCHA_COST = 2_500                             # REQUIRED: The exact amount of key derivations required by the client. Determines how much time/effort is required.
+    ALTCHA_AUTO = 'onload'                          # Determines when the client's browser starts solving the challenge. Value should be one of the following strings: 'off', 'onfocus', 'onload', or 'onsubmit'.
     ALTCHA_AUTH_EXPIRE_MINUTES = 480                # Minutes the user is authorized for after solving a challenge.
     ALTCHA_CHALLENGE_EXPIRE_MINUTES = 2             # Minutes before a given challenge expires.
-    ALTCHA_SALT_PARAMS = {}                         # Additional query parameters to append to the challenge salt.
     ALTCHA_SESSION_KEY = 'altcha_verified'          # Session key name that tracks successful challenges.
     ALTCHA_SITE_ICON_URL = ''                       # Where to find the site icon for use on the challenge page.
     ALTCHA_JS_URL = (f'{STATIC_URL}altcha/'         # Where to find the altcha widget JS.
@@ -101,28 +102,38 @@ the project without setting up your own Django project, run the unit tests, or m
     ```
 3. Install the main and test requirements:
     ```sh
-    $ pip install -rrequirements.txt -rrequirements-test.txt
+    $ pip install -e .'[test]'
     ```
 
 ### Running the test project
 
-1. Start the Django test server:
+1. Run the migrations (only needs to be done once unless you upgrade Django versions):
+    ```sh
+	$ python3 manage.py migrate
+	```
+2. Start the Django test server:
     ```sh
     $ python3 manage.py runserver
     ```
-2. While that is running, open your browser and you can experience the challenge page by visiting
+3. While that is running, open your browser and you can experience the challenge page by visiting
 http://localhost:8000/protected. The test project is set up to protect the `/protected` page
 (redirecting to the `/` challenge page until the challenge is solved, then redirecting again to
 `/protected` after completing the challenge) while leaving the `/open` page available with no
 challenge.
-3. When you are done viewing the pages, you can stop the test server with CTRL-C.
+4. When you are done viewing the pages, you can stop the test server with CTRL-C.
 
 ### Running the tests
 
-* To run the unit tests against all available versions of Python from 3.9 - 3.13, as well as the
+* Install tox and run the unit tests against all available versions of Python from 3.9 - 3.14, as well as the
    Ruff lint/style checks and coverage report:
     ```sh
+	$ pip install tox
     $ tox
+    ```
+* Or, to just run the tests against your current versions of Python and Django, along with viewing the coverage report:
+    ```sh
+	$ coverage run -m pytest
+    $ coverage report -m
     ```
 
 ## License
