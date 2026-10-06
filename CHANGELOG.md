@@ -1,3 +1,8 @@
+x.x.x
+-----
+
+* Stopped showing the Altcha logo
+
 2.0.0
 -----
 
